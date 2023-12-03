@@ -43,6 +43,5 @@ def login() -> Response:
     assert isinstance(g.conn, psycopg.Connection)
     with g.conn.cursor() as cur:
         print(g.useruin)
-        cur.execute("SELECT first_name FROM users WHERE uin = %s;", (g.useruin,))
-        dname, = cur.fetchone()
-        return {"uin": g.useruin, "first_name": dname}
+        cur.execute("SELECT * FROM users WHERE uin = %s;", (g.useruin,))
+        return userJSON
