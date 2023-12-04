@@ -1,1 +1,0 @@
-postgres://csce_310_clone:csce-310-clone@localhost:5432/csce_310_db_clone
