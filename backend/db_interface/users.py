@@ -1,7 +1,6 @@
 from flask import g
 import psycopg
-from programs import Program
-
+from db_interface.programs import Program
 
 class User:
     def __init__(self, uin = None, first_name = None, last_name = None, username = None, password = None, user_type = None, email = None, discord_name = None, m_initial = None):
@@ -54,7 +53,6 @@ class User:
                 )
                 self.conn.commit()
                 return "success"
-                # TODO: Grab the response from the commit, and return True if successful, False if not
             except Exception as e:
                 self.conn.rollback()
                 return f"Error creating user: {e}"
@@ -76,6 +74,10 @@ class User:
                 self.conn.rollback()
                 print(f"Error fetching user: {e}")
                 return None
+    
+    def isAdmin(self):
+        self.autoFill()
+        return True if self.user_type == 'ADMIN' else False
     
     def makeAdmin(self):
         assert isinstance(self.conn, psycopg.Connection)
@@ -196,5 +198,19 @@ class User:
             except Exception as e:
                 self.conn.rollback()
                 return f"Error adding user to program: {e}"
+    
+    def getJSON(self):
+        user_dict = {
+            "uin": self.uin,
+            "first_name": self.first_name,
+            "m_initial": self.m_initial,
+            "last_name": self.last_name,
+            "username": self.username,
+            "password": self.password,
+            "user_type": self.user_type,
+            "email": self.email,
+            "discord_name": self.discord_name
+        }
+        return user_dict
 
 
