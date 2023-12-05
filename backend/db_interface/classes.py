@@ -23,7 +23,7 @@ class CourseClass:
                f"class_description='{self.class_description}', class_type='{self.class_type}')"
 
     def create(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -42,7 +42,7 @@ class CourseClass:
                 return f"Error creating class: {e}"
 
     def fetch(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -59,7 +59,7 @@ class CourseClass:
                 return None
 
     def auto_fill(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -84,7 +84,7 @@ class CourseClass:
                 return f"Error auto-filling class: {e}"
 
     def update(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -103,7 +103,7 @@ class CourseClass:
                 return f"Error updating class: {e}"
 
     def delete(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(

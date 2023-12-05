@@ -24,7 +24,7 @@ class Program:
                f"program_description='{self.program_description}', program_status='{self.program_status}')"
 
     def create(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -43,7 +43,7 @@ class Program:
                 return f"Error creating program: {e}"
 
     def fetch(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -60,7 +60,7 @@ class Program:
                 return None
 
     def auto_fill(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -85,7 +85,7 @@ class Program:
                 return f"Error auto-filling program: {e}"
 
     def update(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -104,7 +104,7 @@ class Program:
                 return f"Error updating program: {e}"
 
     def delete(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(

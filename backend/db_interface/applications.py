@@ -29,7 +29,7 @@ class Application:
                f"purpose_statement='{self.purpose_statement}', app_date={self.app_date})"
 
     def create(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -49,7 +49,7 @@ class Application:
                 return f"Error creating application: {e}"
 
     def fetch(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -66,7 +66,7 @@ class Application:
                 return None
 
     def auto_fill(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -92,7 +92,7 @@ class Application:
                 return f"Error auto-filling application: {e}"
 
     def update(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -113,7 +113,7 @@ class Application:
                 return f"Error updating application: {e}"
 
     def delete(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -130,7 +130,7 @@ class Application:
                 return f"Error deleting application: {e}"
 
     def fetch_applications_between_dates(self, start_date, end_date):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         assert isinstance(start_date, date)
         assert isinstance(end_date, date)
 

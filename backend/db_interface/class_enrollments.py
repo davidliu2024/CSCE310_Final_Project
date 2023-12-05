@@ -25,7 +25,7 @@ class ClassEnrollment:
                f"class_status='{self.class_status}', semester='{self.semester}', class_year={self.class_year})"
 
     def create(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -44,7 +44,7 @@ class ClassEnrollment:
                 return f"Error creating class enrollment: {e}"
 
     def fetch(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -61,7 +61,7 @@ class ClassEnrollment:
                 return None
 
     def auto_fill(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -86,7 +86,7 @@ class ClassEnrollment:
                 return f"Error auto-filling class enrollment: {e}"
 
     def update(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -105,7 +105,7 @@ class ClassEnrollment:
                 return f"Error updating class enrollment: {e}"
 
     def delete(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(

@@ -34,7 +34,7 @@ class Event:
                f"event_type='{self.event_type}')"
 
     def create(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -55,7 +55,7 @@ class Event:
                 return f"Error creating event: {e}"
 
     def fetch(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -72,7 +72,7 @@ class Event:
                 return None
 
     def auto_fill(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -99,7 +99,7 @@ class Event:
                 return f"Error auto-filling event: {e}"
 
     def update(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -120,7 +120,7 @@ class Event:
                 return f"Error updating event: {e}"
 
     def delete(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -137,7 +137,7 @@ class Event:
                 return f"Error deleting event: {e}"
     
     def fetch_events_between_times(self, start_datetime, end_datetime):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         assert isinstance(start_datetime, datetime)
         assert isinstance(end_datetime, datetime)
 

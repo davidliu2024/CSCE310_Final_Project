@@ -68,7 +68,7 @@ class CollegeStudent:
                 return f"Error creating college student: {e}"
     
     def fetch(self):
-        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
                 cur.execute(

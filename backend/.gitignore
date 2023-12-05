@@ -10,3 +10,4 @@ dist/
 venv/
 playground.py
 db_connection/
+unittests/
