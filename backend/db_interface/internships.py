@@ -48,9 +48,9 @@ class Internship:
                 cur.execute(
                     '''
                     SELECT * FROM internship
-                    WHERE intern_id = %s OR internship_name = %s
+                    WHERE intern_id = %s OR internship_name = %s OR is_gov = %s
                     ''',
-                    (self.intern_id, self.internship_name)
+                    (self.intern_id, self.internship_name, self.is_gov)
                 )
                 return cur.fetchall()
             except Exception as e:

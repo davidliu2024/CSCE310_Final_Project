@@ -1,5 +1,6 @@
 from flask import g
 import psycopg
+from programs import Program
 
 
 class User:
@@ -176,8 +177,24 @@ class User:
                 self.conn.rollback()
                 return f"Error deleting user: {e}"
 
-
-
-
+    def add_user_to_program(self, program_num):
+        assert isinstance(self.conn, psycopg.Connection)
+        programTest = Program(program_num = program_num)
+        if (len(programTest.fetch()) == 0):
+            return f"Error adding user to program: program_num not found"
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    INSERT INTO track (program_num, uin)
+                    VALUES (%s, %s)
+                    ''',
+                    (program_num, self.uin)
+                )
+                self.conn.commit()
+                return "success"
+            except Exception as e:
+                self.conn.rollback()
+                return f"Error adding user to program: {e}"
 
 

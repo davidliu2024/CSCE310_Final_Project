@@ -1,5 +1,6 @@
 from flask import g
 import psycopg
+from users import User
 
 class Program:
     def __init__(self, program_num=None, program_name=None, program_description=None, program_status=None):
@@ -48,9 +49,9 @@ class Program:
                 cur.execute(
                     '''
                     SELECT * FROM programs
-                    WHERE program_num = %s OR program_name = %s
+                    WHERE program_num = %s OR program_name = %s OR program_status = %s
                     ''',
-                    (self.program_num, self.program_name)
+                    (self.program_num, self.program_name, self.program_status)
                 )
                 return cur.fetchall()
             except Exception as e:
@@ -118,3 +119,59 @@ class Program:
             except Exception as e:
                 self.conn.rollback()
                 return f"Error deleting program: {e}"
+
+    def activate_program(self):
+        assert isinstance(self.conn, psycopg.Connection)
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    UPDATE programs
+                    SET program_status = %s
+                    WHERE program_num = %s
+                    ''',
+                    ('ACTIVE', self.program_num)
+                )
+                self.conn.commit()
+                return "success"
+            except Exception as e:
+                self.conn.rollback()
+                return f"Error activating program: {e}"
+
+    def deactivate_program(self):
+        assert isinstance(self.conn, psycopg.Connection)
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    UPDATE programs
+                    SET program_status = %s
+                    WHERE program_num = %s
+                    ''',
+                    ('INACTIVE', self.program_num)
+                )
+                self.conn.commit()
+                return "success"
+            except Exception as e:
+                self.conn.rollback()
+                return f"Error deactivating program: {e}"
+    
+    def add_user_to_program(self, uin):
+        assert isinstance(self.conn, psycopg.Connection)
+        userTest = User(uin = uin)
+        if (len(userTest.fetch()) == 0):
+            return f"Error adding user to program: uin not found"
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    INSERT INTO track (program_num, uin)
+                    VALUES (%s, %s)
+                    ''',
+                    (self.program_num, uin)
+                )
+                self.conn.commit()
+                return "success"
+            except Exception as e:
+                self.conn.rollback()
+                return f"Error adding user to program: {e}"

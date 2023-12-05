@@ -50,7 +50,7 @@ class ClassEnrollment:
                 cur.execute(
                     '''
                     SELECT * FROM class_enrollment
-                    WHERE ce_num = %s OR uin = %s OR class_id = %s
+                    WHERE ce_num = %s OR uin = %s OR class_id = %s OR semester = %s OR class_year = %s
                     ''',
                     (self.ce_num, self.uin, self.class_id)
                 )
@@ -67,7 +67,7 @@ class ClassEnrollment:
                 cur.execute(
                     '''
                     SELECT * FROM class_enrollment
-                    WHERE ce_num = %s OR uin = %s OR class_id = %s
+                    WHERE ce_num = %s OR (uin = %s AND class_id = %s)
                     ''',
                     (self.ce_num, self.uin, self.class_id)
                 )

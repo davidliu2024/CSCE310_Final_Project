@@ -3,7 +3,7 @@ import psycopg
 from users import User
 
 class CollegeStudent:
-    def __init__(self, uin, gender=None, hispanic_latino=None, race=None, us_citizen=None,
+    def __init__(self, uin=None, gender=None, hispanic_latino=None, race=None, us_citizen=None,
                  first_generation=None, dob=None, gpa=None, major=None, minor1=None, minor2=None,
                  expected_graduation=None, school=None, classification=None, phone=None,
                  student_type=None):
@@ -66,6 +66,30 @@ class CollegeStudent:
             except Exception as e:
                 self.conn.rollback()
                 return f"Error creating college student: {e}"
+    
+    def fetch(self):
+        assert isinstance(self.conn, psycopg.connection)
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    SELECT * FROM college_student
+                    WHERE gender = %s OR hispanic_latino = %s OR race = %s OR us_citizen = %s
+                        OR first_generation = %s OR dob = %s OR gpa = %s OR major = %s OR minor1 = %s
+                        OR minor2 = %s OR expected_graduation = %s OR school = %s OR classification = %s
+                        OR phone = %s OR student_type = %s
+                    ''',
+                    (self.gender, self.hispanic_latino, self.race, self.us_citizen, 
+                        self.first_generation, self.dob, self.gpa, self.major, self.minor1, self.minor2, 
+                        self.expected_graduation, self.school, self.classification, self.phone, 
+                        self.student_type)
+                )
+                result = cur.fetchall()
+                self.conn.commit()
+                return result
+            except Exception as e:
+                self.conn.rollback()
+                return f"Error fetching college student: {e}"
 
     def delete(self):
         assert isinstance(self.conn, psycopg.Connection)

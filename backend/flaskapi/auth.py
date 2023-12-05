@@ -36,12 +36,4 @@ def authenticate(func):
 @bp.route("", methods=["GET"])
 @authenticate
 def login() -> Response:
-    """
-    Returns a 200 status code if the given HTTP authorization is valid, or 401 if not.
-    Response body is a JSON object with two fields:
-    """
-    assert isinstance(g.conn, psycopg.Connection)
-    with g.conn.cursor() as cur:
-        print(g.useruin)
-        cur.execute("SELECT * FROM users WHERE uin = %s;", (g.useruin,))
-        return userJSON
+    pass

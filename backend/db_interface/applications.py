@@ -1,16 +1,17 @@
 from flask import g
 import psycopg
+from datetime import date
 
 class Application:
-    def __init__(self, app_num=None, program_num=None, uin=None, uncom_cert=None, com_cert=None,
-                 purpose_statement=None, app_date=None):
+    def __init__(self, program_num, uin, uncom_cert=None, com_cert=None,app_num=None,
+                 purpose_statement=None):
         self.app_num = app_num
         self.program_num = program_num
         self.uin = uin
         self.uncom_cert = uncom_cert
         self.com_cert = com_cert
         self.purpose_statement = purpose_statement
-        self.app_date = app_date
+        self.app_date = date.today()
         try:
             self.conn = g.conn
         except RuntimeError:
@@ -71,7 +72,7 @@ class Application:
                 cur.execute(
                     '''
                     SELECT * FROM applications
-                    WHERE app_num = %s OR program_num = %s OR uin = %s
+                    WHERE app_num = %s OR (program_num = %s AND uin = %s)
                     ''',
                     (self.app_num, self.program_num, self.uin)
                 )
@@ -98,11 +99,11 @@ class Application:
                     '''
                     UPDATE applications
                     SET program_num = %s, uin = %s, uncom_cert = %s, com_cert = %s,
-                        purpose_statement = %s, app_date = %s
+                        purpose_statement = %s
                     WHERE app_num = %s
                     ''',
                     (self.program_num, self.uin, self.uncom_cert, self.com_cert,
-                     self.purpose_statement, self.app_date, self.app_num)
+                     self.purpose_statement, self.app_num)
                 )
 
                 self.conn.commit()
@@ -118,7 +119,7 @@ class Application:
                 cur.execute(
                     '''
                     DELETE FROM applications
-                    WHERE app_num = %s OR program_num = %s OR uin = %s
+                    WHERE app_num = %s OR (program_num = %s AND uin = %s)
                     ''',
                     (self.app_num, self.program_num, self.uin)
                 )
@@ -127,3 +128,25 @@ class Application:
             except Exception as e:
                 self.conn.rollback()
                 return f"Error deleting application: {e}"
+
+    def fetch_applications_between_dates(self, start_date, end_date):
+        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(start_date, date)
+        assert isinstance(end_date, date)
+
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    SELECT * FROM applications
+                    WHERE app_date >= %s AND app_date <= %s
+                    ''',
+                    (start_date, end_date)
+                )
+                result = cur.fetchall()
+                self.conn.commit()
+                return result
+            except Exception as e:
+                self.conn.rollback()
+                return f"Error fetching applications between dates: {e}"
+

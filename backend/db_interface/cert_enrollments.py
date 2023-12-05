@@ -56,9 +56,9 @@ class CertEnrollment:
                 cur.execute(
                     '''
                     SELECT * FROM cert_enrollment
-                    WHERE certe_num = %s OR uin = %s OR cert_id = %s
+                    WHERE certe_num = %s OR uin = %s OR cert_id = %s OR semester = %s OR cert_year = %s
                     ''',
-                    (self.certe_num, self.uin, self.cert_id)
+                    (self.certe_num, self.uin, self.cert_id, self.semester, self.cert_year)
                 )
                 return cur.fetchall()
             except Exception as e:
@@ -73,7 +73,7 @@ class CertEnrollment:
                 cur.execute(
                     '''
                     SELECT * FROM cert_enrollment
-                    WHERE certe_num = %s OR uin = %s OR cert_id = %s
+                    WHERE certe_num = %s OR (uin = %s AND cert_id = %s)
                     ''',
                     (self.certe_num, self.uin, self.cert_id)
                 )
@@ -120,7 +120,7 @@ class CertEnrollment:
                 cur.execute(
                     '''
                     DELETE FROM cert_enrollment
-                    WHERE certe_num = %s OR uin = %s OR cert_id = %s
+                    WHERE certe_num = %s OR (uin = %s AND cert_id = %s)
                     ''',
                     (self.certe_num, self.uin, self.cert_id)
                 )

@@ -1,5 +1,6 @@
 from flask import g
 import psycopg
+from datetime import datetime
 
 class Event:
     def __init__(self, event_id=None, uin=None, program_num=None, event_name=None, event_start_date=None,
@@ -134,3 +135,29 @@ class Event:
             except Exception as e:
                 self.conn.rollback()
                 return f"Error deleting event: {e}"
+    
+    def fetch_events_between_times(self, start_datetime, end_datetime):
+        assert isinstance(self.conn, psycopg.connection)
+        assert isinstance(start_datetime, datetime)
+        assert isinstance(end_datetime, datetime)
+
+        start_time = start_datetime.time()
+        end_time = end_datetime.time()
+        start_date = start_datetime.date()
+        end_date = end_datetime.date()
+
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    SELECT * FROM event_table
+                    WHERE event_start_date >= %s AND event_end_date <= %s event_start_time >= %s AND event_end_time <= %s
+                    ''',
+                    (start_date, end_date, start_time, end_time)
+                )
+                result = cur.fetchall()
+                self.conn.commit()
+                return result
+            except Exception as e:
+                self.conn.rollback()
+                return f"Error fetching events between times: {e}"
