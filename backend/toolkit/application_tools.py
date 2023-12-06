@@ -1,57 +1,34 @@
-from flask import g
+from flask import Blueprint, request, g, abort, Response, jsonify
+import psycopg
 from db_interface.applications import Application
 
-def submit_application(application_data) -> Application:
-    """
-    Submit a new application and return the application instance.
-    """
-    application = Application(
-        program_num=application_data['program_num'],
-        user_id=g.userobj.user_id,
-        uncompleted_certificate=application_data.get('uncompleted_certificate'),
-        completed_certificate=application_data.get('completed_certificate'),
-        purpose_statement=application_data.get('purpose_statement'),
-    )
+application_tools_bp = Blueprint('application_tools', __name__)
 
-    application.create()
-    return application
+@application_tools_bp.before_app_request
+def before_request():
+    try:
+        g.conn = psycopg.connect(
+            dbname='your_db_name',
+            user='your_db_user',
+            password='your_db_password',
+            host='your_db_host',
+            port='your_db_port'
+        )
+    except Exception as e:
+        abort(Response(f"Error connecting to the database: {e}", status=500))
 
-def edit_application(application_id, updated_data) -> Application:
-    """
-    Edit an existing application and return the updated application instance.
-    """
-    application = Application(application_id=application_id)
+@application_tools_bp.teardown_app_request
+def teardown_request(exception):
+    if hasattr(g, 'conn'):
+        g.conn.close()
 
-    if not application.fetch():
-        return {"response": f"No application with ID: {application_id}"}
+@application_tools_bp.route('/application/set_connection', methods=['POST'])
+def set_connection_manually():
+    conn = request.get_json().get('conn')
+    Application().set_connection_manually(conn)
+    return jsonify({"response": "success"})
 
-    application.update(updated_data)
-    return application
-
-def view_application_info(application_id) -> dict:
-    """
-    View the details and status of a specific application.
-    """
-    application = Application(application_id=application_id)
-
-    if not application.fetch():
-        return {"response": f"No application with ID: {application_id}"}
-
-    return {
-        'application_id': application.application_id,
-        'program_num': application.program_num,
-        'purpose_statement': application.purpose_statement,
-        'application_status': application.application_status,
-    }
-
-def delete_application(application_id) -> dict:
-    """
-    Delete a specific application and return a response.
-    """
-    application = Application(application_id=application_id)
-
-    if not application.fetch():
-        return {"response": f"No application with ID: {application_id}"}
-
-    response = application.delete()
-    return response
+@application_tools_bp.route('/application/close_connection', methods=['POST'])
+def close_connection_manually():
+    Application().close_connection_manually()
+    return jsonify({"response": "success"})
