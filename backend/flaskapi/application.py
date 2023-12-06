@@ -1,73 +1,61 @@
-from flask import g
+from flask import Flask, Blueprint, request, g, abort, Response, jsonify, session
 import psycopg
-from datetime import date
+from db_interface.users import User
+from toolkit.application_tools import create_application, fetch_user_applications, update_application, delete_application
 
-class Application:
-    def __init__(self, program_num=None, uin=None, uncom_cert=None, com_cert=None, app_num=None, purpose_statement=None):
-        self.app_num = app_num
-        self.program_num = program_num
-        self.uin = uin
-        self.uncom_cert = uncom_cert
-        self.com_cert = com_cert
-        self.purpose_statement = purpose_statement
-        self.app_date = date.today()
-        try:
-            self.conn = g.conn
-        except RuntimeError:
-            self.conn = None
+bp = Blueprint("applications", __name__, url_prefix="/applications")
 
-    def create(self):
-        assert isinstance(self.conn, psycopg.Connection)
-        with self.conn.cursor() as cur:
-            try:
-                cur.execute(
-                    '''
-                    INSERT INTO applications (program_num, uin, uncom_cert, com_cert, purpose_statement, app_date)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                    RETURNING app_num
-                    ''',
-                    (self.program_num, self.uin, self.uncom_cert, self.com_cert, self.purpose_statement, self.app_date)
-                )
-                self.app_num = cur.fetchone()[0]
-                self.conn.commit()
-                return "success"
-            except Exception as e:
-                self.conn.rollback()
-                return f"Error creating application: {e}"
+@bp.before_request
+def authenticate_user():
+    user_id = session.get('user_id')  # Replace with your actual session variable
+    g.userobj = User(user_id=user_id) if user_id else None
 
-    def update(self):
-        assert isinstance(self.conn, psycopg.Connection)
-        with self.conn.cursor() as cur:
-            try:
-                cur.execute(
-                    '''
-                    UPDATE applications
-                    SET program_num = %s, uin = %s, uncom_cert = %s, com_cert = %s,
-                        purpose_statement = %s
-                    WHERE app_num = %s
-                    ''',
-                    (self.program_num, self.uin, self.uncom_cert, self.com_cert, self.purpose_statement, self.app_num)
-                )
+@bp.route("", methods=["POST"])
+def submit_application() -> Response:
+    assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj, User)
 
-                self.conn.commit()
-                return "success"
-            except Exception as e:
-                self.conn.rollback()
-                return f"Error updating application: {e}"
+    good_request = request.json is not None
+    good_request &= all(field in request.json for field in ['program_num', 'uncom_cert', 'com_cert', 'purpose_statement'])
+    if not good_request:
+        abort(400)
 
-    def fetch(self):
-        assert isinstance(self.conn, psycopg.Connection)
-        with self.conn.cursor() as cur:
-            try:
-                cur.execute(
-                    '''
-                    SELECT * FROM applications
-                    WHERE app_num = %s OR program_num = %s OR uin = %s
-                    ''',
-                    (self.app_num, self.program_num, self.uin)
-                )
-                return cur.fetchall()
-            except Exception as e:
-                self.conn.rollback()
-                print(f"Error fetching application: {e}")
-               
+    application_response = create_application(g.userobj.uin, request.json)
+    return jsonify({"response": application_response})
+
+@bp.route("", methods=["GET"])
+def get_user_applications() -> Response:
+    assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj, User)
+
+    applications = fetch_user_applications(g.userobj.uin)
+    return jsonify(applications)
+
+@bp.route("", methods=["PATCH"])
+def update_user_application() -> Response:
+    assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj, User)
+
+    good_request = request.json is not None
+    good_request &= all(field in request.json for field in ['app_num', 'program_num', 'uncom_cert', 'com_cert', 'purpose_statement'])
+    if not good_request:
+        abort(400)
+
+    application_response = update_application(request.json)
+    return jsonify({"response": application_response})
+
+@bp.route("", methods=["DELETE"])
+def delete_user_application() -> Response:
+    assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj, User)
+
+    good_request = request.json is not None
+    good_request &= 'app_num' in request.json
+    if not good_request:
+        abort(400)
+
+    application_response = delete_application(request.json['app_num'])
+    return jsonify({"response": application_response})
+
+if __name__ == "__main__":
+    bp.run(debug=True)
