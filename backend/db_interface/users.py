@@ -259,7 +259,7 @@ class User:
             except Exception as e:
                 self.conn.rollback()
                 return f"Error removing user from program: {e}"
-
+            
     
     def getJSON(self):
         user_dict = {
