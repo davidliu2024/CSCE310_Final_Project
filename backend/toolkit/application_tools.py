@@ -1,34 +1,85 @@
-from flask import Blueprint, request, g, abort, Response, jsonify
+from flask import g, jsonify
 import psycopg
-from db_interface.applications import Application
+from db_interface.classes import Application
 
-application_tools_bp = Blueprint('application_tools', __name__)
+def submit_application(applicationJSON) -> jsonify:
+    assert isinstance(g.conn, psycopg.Connection)
 
-@application_tools_bp.before_app_request
-def before_request():
-    try:
-        g.conn = psycopg.connect(
-            dbname='your_db_name',
-            user='your_db_user',
-            password='your_db_password',
-            host='your_db_host',
-            port='your_db_port'
-        )
-    except Exception as e:
-        abort(Response(f"Error connecting to the database: {e}", status=500))
+    # Validate the JSON data
+    valid_request = applicationJSON is not None
+    valid_request &= all(field in applicationJSON for field in ['program_num', 'uin', 'purpose_statement'])
+    if not valid_request:
+        return jsonify({"response": "Invalid application data. Required fields: program_num, uin, purpose_statement"}), 400
 
-@application_tools_bp.teardown_app_request
-def teardown_request(exception):
-    if hasattr(g, 'conn'):
-        g.conn.close()
+    application = Application(
+        program_num=applicationJSON['program_num'],
+        uin=applicationJSON['uin'],
+        uncom_cert=applicationJSON.get('uncom_cert'),
+        com_cert=applicationJSON.get('com_cert'),
+        purpose_statement=applicationJSON['purpose_statement']
+    )
 
-@application_tools_bp.route('/application/set_connection', methods=['POST'])
-def set_connection_manually():
-    conn = request.get_json().get('conn')
-    Application().set_connection_manually(conn)
-    return jsonify({"response": "success"})
+    response = application.create()
+    return jsonify({"response": response})
 
-@application_tools_bp.route('/application/close_connection', methods=['POST'])
-def close_connection_manually():
-    Application().close_connection_manually()
-    return jsonify({"response": "success"})
+def update_application(applicationJSON) -> jsonify:
+    assert isinstance(g.conn, psycopg.Connection)
+
+    # Validate the JSON data
+    valid_request = applicationJSON is not None
+    valid_request &= all(field in applicationJSON for field in ['app_num', 'program_num', 'uin', 'purpose_statement'])
+    if not valid_request:
+        return jsonify({"response": "Invalid application data. Required fields: app_num, program_num, uin, purpose_statement"}), 400
+
+    application = Application(
+        app_num=applicationJSON['app_num'],
+        program_num=applicationJSON['program_num'],
+        uin=applicationJSON['uin'],
+        uncom_cert=applicationJSON.get('uncom_cert'),
+        com_cert=applicationJSON.get('com_cert'),
+        purpose_statement=applicationJSON['purpose_statement']
+    )
+
+    response = application.update()
+    return jsonify({"response": response})
+
+def get_own_application(uin) -> jsonify:
+    assert isinstance(g.conn, psycopg.Connection)
+
+    # Validate the user's UIN
+    if not isinstance(uin, int):
+        return jsonify({"response": "Invalid UIN"}), 400
+
+    application = Application(uin=uin)
+    application_records = application.fetch()
+
+    if not application_records:
+        return jsonify({"response": "Error fetching application information"}), 500
+
+    # Convert the result to a list of dictionaries
+    applications_list = [
+        {
+            'app_num': record[0],
+            'program_num': record[1],
+            'uin': record[2],
+            'uncom_cert': record[3],
+            'com_cert': record[4],
+            'purpose_statement': record[5],
+            'app_date': record[6].isoformat() if record[6] else None
+        }
+        for record in application_records
+    ]
+
+    return jsonify(applications_list)
+
+def remove_application(app_num) -> jsonify:
+    assert isinstance(g.conn, psycopg.Connection)
+
+    # Validate the application number
+    if not isinstance(app_num, int):
+        return jsonify({"response": "Invalid application number"}), 400
+
+    application = Application(app_num=app_num)
+    response = application.delete()
+
+    return jsonify({"response": response})

@@ -1,74 +1,73 @@
-import datetime
-from flask import Blueprint, request, g, abort, Response, jsonify
-from db_interface.applications import Application
+from flask import g
+import psycopg
+from datetime import date
 
-application_bp = Blueprint('application', __name__)
+class Application:
+    def __init__(self, program_num=None, uin=None, uncom_cert=None, com_cert=None, app_num=None, purpose_statement=None):
+        self.app_num = app_num
+        self.program_num = program_num
+        self.uin = uin
+        self.uncom_cert = uncom_cert
+        self.com_cert = com_cert
+        self.purpose_statement = purpose_statement
+        self.app_date = date.today()
+        try:
+            self.conn = g.conn
+        except RuntimeError:
+            self.conn = None
 
-@application_bp.route('/application', methods=['POST'])
-def create_application():
-    applicationJSON = request.get_json()
-    application = Application(
-        program_num=applicationJSON['program_num'],
-        uin=applicationJSON['uin'],
-        uncom_cert=applicationJSON.get('uncom_cert'),
-        com_cert=applicationJSON.get('com_cert'),
-        purpose_statement=applicationJSON.get('purpose_statement')
-    )
-    response = application.create()
-    return jsonify({"response": response})
+    def create(self):
+        assert isinstance(self.conn, psycopg.Connection)
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    INSERT INTO applications (program_num, uin, uncom_cert, com_cert, purpose_statement, app_date)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                    RETURNING app_num
+                    ''',
+                    (self.program_num, self.uin, self.uncom_cert, self.com_cert, self.purpose_statement, self.app_date)
+                )
+                self.app_num = cur.fetchone()[0]
+                self.conn.commit()
+                return "success"
+            except Exception as e:
+                self.conn.rollback()
+                return f"Error creating application: {e}"
 
-@application_bp.route('/application', methods=['GET'])
-def fetch_application():
-    applicationJSON = request.get_json()
-    application = Application(
-        app_num=applicationJSON.get('app_num'),
-        program_num=applicationJSON.get('program_num'),
-        uin=applicationJSON.get('uin')
-    )
-    result = application.fetch()
-    return jsonify(result)
+    def update(self):
+        assert isinstance(self.conn, psycopg.Connection)
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    UPDATE applications
+                    SET program_num = %s, uin = %s, uncom_cert = %s, com_cert = %s,
+                        purpose_statement = %s
+                    WHERE app_num = %s
+                    ''',
+                    (self.program_num, self.uin, self.uncom_cert, self.com_cert, self.purpose_statement, self.app_num)
+                )
 
-@application_bp.route('/application/auto_fill', methods=['GET'])
-def auto_fill_application():
-    applicationJSON = request.get_json()
-    application = Application(
-        app_num=applicationJSON.get('app_num'),
-        program_num=applicationJSON.get('program_num'),
-        uin=applicationJSON.get('uin')
-    )
-    success = application.auto_fill()
-    return jsonify({"success": success})
+                self.conn.commit()
+                return "success"
+            except Exception as e:
+                self.conn.rollback()
+                return f"Error updating application: {e}"
 
-@application_bp.route('/application', methods=['PUT'])
-def update_application():
-    applicationJSON = request.get_json()
-    application = Application(
-        app_num=applicationJSON['app_num'],
-        program_num=applicationJSON['program_num'],
-        uin=applicationJSON['uin'],
-        uncom_cert=applicationJSON.get('uncom_cert'),
-        com_cert=applicationJSON.get('com_cert'),
-        purpose_statement=applicationJSON.get('purpose_statement')
-    )
-    response = application.update()
-    return jsonify({"response": response})
-
-@application_bp.route('/application', methods=['DELETE'])
-def delete_application():
-    applicationJSON = request.get_json()
-    application = Application(
-        app_num=applicationJSON.get('app_num'),
-        program_num=applicationJSON.get('program_num'),
-        uin=applicationJSON.get('uin')
-    )
-    response = application.delete()
-    return jsonify({"response": response})
-
-@application_bp.route('/application/between_dates', methods=['GET'])
-def fetch_applications_between_dates():
-    start_date = request.args.get('start_date')
-    end_date = request.args.get('end_date')
-    start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
-    end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-    result = Application().fetch_applications_between_dates(start_date, end_date)
-    return jsonify(result)
+    def fetch(self):
+        assert isinstance(self.conn, psycopg.Connection)
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    SELECT * FROM applications
+                    WHERE app_num = %s OR program_num = %s OR uin = %s
+                    ''',
+                    (self.app_num, self.program_num, self.uin)
+                )
+                return cur.fetchall()
+            except Exception as e:
+                self.conn.rollback()
+                print(f"Error fetching application: {e}")
+               
