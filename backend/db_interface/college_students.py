@@ -162,40 +162,23 @@ class CollegeStudent:
                 self.conn.rollback()
                 return f"Error updating college student: {e}"
 
-    def activate_student(self):
-        assert isinstance(self.conn, psycopg.Connection)
-        with self.conn.cursor() as cur:
-            try:
-                cur.execute(
-                    '''
-                    UPDATE college_student
-                    SET student_type = %s
-                    WHERE uin = %s
-                    ''',
-                    ('ACTIVE', self.uin)
-                )
-                self.conn.commit()
-                self.student_type = 'ACTIVE'
-                return "success"
-            except Exception as e:
-                self.conn.rollback()
-                return f"Error activating college student: {e}"
-
-    def deactivate_student(self):
-        assert isinstance(self.conn, psycopg.Connection)
-        with self.conn.cursor() as cur:
-            try:
-                cur.execute(
-                    '''
-                    UPDATE college_student
-                    SET student_type = %s
-                    WHERE uin = %s
-                    ''',
-                    ('INACTIVE', self.uin)
-                )
-                self.conn.commit()
-                self.student_type = 'INACTIVE'
-                return "success"
-            except Exception as e:
-                self.conn.rollback()
-                return f"Error deactivating college student: {e}"
+    def getJSON(self):
+        student_dict = {
+            "uin": self.uin,
+            "gender": self.gender,
+            "hispanic_latino": self.hispanic_latino,
+            "race": self.race,
+            "us_citizen": self.us_citizen,
+            "first_generation": self.first_generation,
+            "dob": self.dob,
+            "gpa": self.gpa,
+            "major": self.major,
+            "minor1": self.minor1,
+            "minor2": self.minor2,
+            "expected_graduation": self.expected_graduation,
+            "school": self.school,
+            "classification": self.classification,
+            "phone": self.phone,
+            "student_type": self.student_type
+        }
+        return student_dict

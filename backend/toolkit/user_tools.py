@@ -94,3 +94,19 @@ def fetch_all_users():
         except Exception as e:
             g.conn.rollback()
             return f"Error fetching all users: {e}"
+
+def update_user(userJSON):
+    user = User(
+        uin=userJSON['uin'],
+        first_name=userJSON['first_name'],
+        m_initial=userJSON.get('m_initial'),
+        last_name=userJSON['last_name'],
+        username=userJSON['username'],
+        password=userJSON['password'],
+        user_type=userJSON['user_type'],
+        email=userJSON.get('email'),
+        discord_name=userJSON.get('discord_name')
+    )
+    response = user.update()
+
+    return {"response": response}

@@ -116,6 +116,45 @@ class User:
             except Exception as e:
                 self.conn.rollback()
                 return f"Error removing user admin status: {e}"
+    
+    def deactivate_user(self):
+        assert isinstance(self.conn, psycopg.Connection)
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    UPDATE users
+                    SET user_type = %s
+                    WHERE uin = %s
+                    ''',
+                    ('DEACTIVATED', self.uin)
+                )
+                self.conn.commit()
+                self.user_type = 'DEACTIVATED'
+                return "success"
+            except Exception as e:
+                self.conn.rollback()
+                return f"Error removing user admin status: {e}"
+    
+    def activate_user(self):
+        assert isinstance(self.conn, psycopg.Connection)
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    UPDATE users
+                    SET user_type = %s
+                    WHERE uin = %s
+                    ''',
+                    ('ACTIVATED', self.uin)
+                )
+                self.conn.commit()
+                self.user_type = 'USER'
+                return "success"
+            except Exception as e:
+                self.conn.rollback()
+                return f"Error removing user admin status: {e}"
+
 
     def autoFill(self):
         assert isinstance(self.conn, psycopg.Connection)
@@ -182,8 +221,12 @@ class User:
     def add_user_to_program(self, program_num):
         assert isinstance(self.conn, psycopg.Connection)
         programTest = Program(program_num = program_num)
+        programTest.auto_fill()
+        if programTest.program_status == "INACTIVE":
+            return "Error adding user to program: Program inactive"
         if (len(programTest.fetch()) == 0):
             return f"Error adding user to program: program_num not found"
+        
         with self.conn.cursor() as cur:
             try:
                 cur.execute(
@@ -198,6 +241,25 @@ class User:
             except Exception as e:
                 self.conn.rollback()
                 return f"Error adding user to program: {e}"
+    
+    def remove_user_from_program(self, program_num):
+        assert isinstance(self.conn, psycopg.Connection)
+
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    DELETE FROM track
+                    WHERE uin = %s AND program_num = %s
+                    ''',
+                    (self.uin, program_num)
+                )
+                self.conn.commit()
+                return "success"
+            except Exception as e:
+                self.conn.rollback()
+                return f"Error removing user from program: {e}"
+
     
     def getJSON(self):
         user_dict = {
