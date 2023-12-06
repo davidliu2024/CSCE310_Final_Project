@@ -1,6 +1,6 @@
 from flask import g
 import psycopg
-from users import User
+from db_interface.users import User
 
 class CollegeStudent:
     def __init__(self, uin=None, gender=None, hispanic_latino=None, race=None, us_citizen=None,
