@@ -8,3 +8,6 @@ htmlcov/
 docs/_build/
 dist/
 venv/
+playground.py
+db_connection/
+unittests/
