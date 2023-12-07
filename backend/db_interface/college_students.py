@@ -29,9 +29,11 @@ class CollegeStudent:
             self.conn = None
 
     def set_connection_manually(self, conn):
+        assert isinstance(conn, psycopg.Connection)
         self.conn = conn
 
     def close_connection_manually(self):
+        assert isinstance(self.conn, psycopg.Connection)
         self.conn.close()
 
     def __repr__(self):
@@ -44,7 +46,7 @@ class CollegeStudent:
     def create(self):
         assert isinstance(self.conn, psycopg.Connection)
         userTest = User(uin = self.uin)
-        if (len(userTest.fetch)==0):
+        if (len(userTest.fetch()) == 0):
             return "Error creating college student: User does not exist yet"
 
         with self.conn.cursor() as cur:
@@ -84,12 +86,13 @@ class CollegeStudent:
                         self.expected_graduation, self.school, self.classification, self.phone, 
                         self.student_type)
                 )
-                result = cur.fetchall()
                 self.conn.commit()
+                result = cur.fetchall()
                 return result
             except Exception as e:
                 self.conn.rollback()
-                return f"Error fetching college student: {e}"
+                print(f"Error fetching college student: {e}")
+                return []
 
     def delete(self):
         assert isinstance(self.conn, psycopg.Connection)

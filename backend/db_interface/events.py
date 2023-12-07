@@ -21,9 +21,11 @@ class Event:
             self.conn = None
 
     def set_connection_manually(self, conn):
+        assert isinstance(conn, psycopg.Connection)
         self.conn = conn
 
     def close_connection_manually(self):
+        assert isinstance(self.conn, psycopg.Connection)
         self.conn.close()
 
     def __repr__(self):
@@ -47,7 +49,7 @@ class Event:
                     (self.uin, self.program_num, self.event_name, self.event_start_date, self.event_start_time,
                      self.event_end_date, self.event_end_time, self.event_location, self.event_type)
                 )
-                self.event_id = cur.fetchone()[0]
+                self.event_id = cur.fetchone()
                 self.conn.commit()
                 return "success"
             except Exception as e:
@@ -69,7 +71,7 @@ class Event:
             except Exception as e:
                 self.conn.rollback()
                 print(f"Error fetching event: {e}")
-                return None
+                return []
 
     def auto_fill(self):
         assert isinstance(self.conn, psycopg.Connection)

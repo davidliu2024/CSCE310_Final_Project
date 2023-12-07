@@ -13,9 +13,11 @@ class Program:
             self.conn = None
 
     def set_connection_manually(self, conn):
+        assert isinstance(conn, psycopg.Connection)
         self.conn = conn
 
     def close_connection_manually(self):
+        assert isinstance(self.conn, psycopg.Connection)
         self.conn.close()
 
     def __repr__(self):
@@ -34,7 +36,7 @@ class Program:
                     ''',
                     (self.program_name, self.program_description, self.program_status)
                 )
-                self.program_num = cur.fetchone()[0]
+                self.program_num = cur.fetchone()
                 self.conn.commit()
                 return "success"
             except Exception as e:
@@ -56,7 +58,7 @@ class Program:
             except Exception as e:
                 self.conn.rollback()
                 print(f"Error fetching program: {e}")
-                return None
+                return []
 
     def auto_fill(self):
         assert isinstance(self.conn, psycopg.Connection)

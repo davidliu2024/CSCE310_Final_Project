@@ -1,7 +1,6 @@
 from flask import g, jsonify
 import psycopg
 from db_interface.programs import Program
-from db_interface.users import User
 
 def create_program(programJSON) -> Program:
     '''
