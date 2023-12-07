@@ -2,7 +2,7 @@ from flask import g
 import psycopg
 
 class InternApplication:
-    def __init__(self, uin, intern_id, app_status=None, app_year=None, ia_num=None):
+    def __init__(self, uin=None, intern_id=None, app_status=None, app_year=None, ia_num=None):
         self.ia_num = ia_num
         self.uin = uin
         self.intern_id = intern_id
@@ -121,3 +121,18 @@ class InternApplication:
             except Exception as e:
                 self.conn.rollback()
                 return f"Error deleting intern application: {e}"
+
+    def get_json(self):
+        # Create a dictionary with the attributes of the object
+        intern_app_dict = {
+            "ia_num": self.ia_num,
+            "uin": self.uin,
+            "intern_id": self.intern_id,
+            "app_status": self.app_status,
+            "app_year": self.app_year,
+        }
+
+        # Convert the dictionary to a JSON-formatted string
+        intern_app_json = intern_app_dict
+
+        return intern_app_json
