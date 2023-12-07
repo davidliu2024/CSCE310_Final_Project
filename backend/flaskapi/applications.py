@@ -3,6 +3,7 @@ from db_interface.documents import Document
 from toolkit.user_tools import *
 from toolkit.college_student_tools import *
 from toolkit.document_tools import *
+from toolkit.application_tools import *
 
 bp = Blueprint("applications", __name__, url_prefix="/applications")
 
@@ -25,8 +26,9 @@ def submit_application() -> Response:
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
 
-    good_request = request.json is not None
-    good_request &= all(field in request.json for field in ['program_num', 'uncom_cert', 'com_cert', 'purpose_statement'])
+    if not isinstance(request.json, dict):
+        abort(400)
+    good_request = all(field in request.json for field in ['program_num', 'uncom_cert', 'com_cert', 'purpose_statement'])
     if not good_request:
         abort(400)
 
@@ -46,8 +48,9 @@ def update_user_application() -> Response:
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
 
-    good_request = request.json is not None
-    good_request &= all(field in request.json for field in ['app_num', 'program_num', 'uncom_cert', 'com_cert', 'purpose_statement'])
+    if not isinstance(request.json, dict):
+        abort(400)
+    good_request = all(field in request.json for field in ['app_num', 'program_num', 'uncom_cert', 'com_cert', 'purpose_statement'])
     if not good_request:
         abort(400)
 
@@ -59,13 +62,11 @@ def delete_user_application() -> Response:
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
 
-    good_request = request.json is not None
-    good_request &= 'app_num' in request.json
+    if not isinstance(request.json, dict):
+        abort(400)
+    good_request = 'app_num' in request.json
     if not good_request:
         abort(400)
 
     application_response = delete_application(request.json['app_num'])
     return jsonify({"response": application_response})
-
-if __name__ == "__main__":
-    bp.run(debug=True)
