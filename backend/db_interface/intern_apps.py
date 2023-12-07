@@ -2,7 +2,7 @@ from flask import g
 import psycopg
 
 class InternApplication:
-    def __init__(self, uin, intern_id, app_status=None, app_year=None, ia_num=None):
+    def __init__(self, uin, intern_id=None, app_status=None, app_year=None, ia_num=None):
         self.ia_num = ia_num
         self.uin = uin
         self.intern_id = intern_id

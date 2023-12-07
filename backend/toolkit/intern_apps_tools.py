@@ -70,12 +70,13 @@ def patch_intern_application(internAppJSON):
     return { "response": intern_app.update() }
 
 
-def delete_intern_application(internAppJSON):
-
+def delete_intern_application(uin, internAppJSON):
     intern_app = InternApplication(
+        uin=uin,
         ia_num = internAppJSON.get('ia_num')
     )
 
-    intern_app.delete()
+    response = intern_app.delete()
+    return { "response": response }
 
 

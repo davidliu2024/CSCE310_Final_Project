@@ -36,6 +36,7 @@ def submit_application() -> Response:
     return jsonify({"response": application_response})
 
 @bp.route("", methods=["GET"])
+@authenticate
 def get_user_applications() -> Response:
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
