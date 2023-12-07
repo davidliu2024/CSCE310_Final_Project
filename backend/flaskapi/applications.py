@@ -49,7 +49,6 @@ def submit_application() -> Response:
 
 @bp.route("", methods=["GET"])
 @authenticate
-@check_if_admin
 def get_user_applications():
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
@@ -57,7 +56,8 @@ def get_user_applications():
     applications = fetch_user_applications(g.userobj.uin)
     return applications
 
-@bp.route("", methods=["PATCH"])
+@bp.route("", methods=["PUT"])
+@authenticate
 def update_user_application() -> Response:
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
@@ -69,9 +69,10 @@ def update_user_application() -> Response:
         abort(400)
 
     application_response = update_application(request.json)
-    return jsonify({"response": application_response})
+    return application_response
 
 @bp.route("", methods=["DELETE"])
+@authenticate
 def delete_user_application() -> Response:
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)

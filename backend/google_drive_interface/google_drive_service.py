@@ -8,7 +8,7 @@ class GoogleDriveService:
         self._SCOPES=['https://www.googleapis.com/auth/drive']
 
     def build(self):
-        creds = ServiceAccountCredentials.from_json_keyfile_name(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"), self._SCOPES[0])
+        creds = ServiceAccountCredentials.from_json_keyfile_name("/home/lucaslh/CSCE310_Final_Project/backend/google_drive_credentials.json", self._SCOPES)
         service = build('drive', 'v3', credentials=creds)
 
         return service
