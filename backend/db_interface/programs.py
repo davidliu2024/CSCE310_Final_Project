@@ -157,6 +157,15 @@ class Program:
                 self.conn.rollback()
                 return f"Error deactivating program: {e}"
     
+    def get_json(self):
+        program_dict = {
+            "program_num": self.program_num,
+            "program_name": self.program_name,
+            "program_description": self.program_description,
+            "program_status": self.program_status
+        }
+        return program_dict
+    
     # def add_user_to_program(self, uin):
     #     assert isinstance(self.conn, psycopg.Connection)
     #     userTest = User(uin = uin)
