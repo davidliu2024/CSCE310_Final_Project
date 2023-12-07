@@ -164,24 +164,4 @@ class Program:
             "program_description": self.program_description,
             "program_status": self.program_status
         }
-        return program_dict
-    
-    # def add_user_to_program(self, uin):
-    #     assert isinstance(self.conn, psycopg.Connection)
-    #     userTest = User(uin = uin)
-    #     if (len(userTest.fetch()) == 0):
-    #         return f"Error adding user to program: uin not found"
-    #     with self.conn.cursor() as cur:
-    #         try:
-    #             cur.execute(
-    #                 '''
-    #                 INSERT INTO track (program_num, uin)
-    #                 VALUES (%s, %s)
-    #                 ''',
-    #                 (self.program_num, uin)
-    #             )
-    #             self.conn.commit()
-    #             return "success"
-    #         except Exception as e:
-    #             self.conn.rollback()
-    #             return f"Error adding user to program: {e}"
+        return program_dict   
