@@ -20,6 +20,41 @@ def create_application(uin, application_json):
     application_instance.create()
     return "success"
 
+def fetch_all_applications():
+    '''
+    Fetch all applications for a user and return as JSON
+    '''
+    assert isinstance(g.conn, psycopg.Connection)
+
+    with g.conn.cursor() as cur:
+        try:
+            cur.execute(
+                '''
+                SELECT * FROM applications
+                '''
+            )
+            application_records = cur.fetchall()
+
+            # Convert the result to a list of dictionaries
+            applications_list = [
+                {
+                    'app_num': record[0],
+                    'program_num': record[1],
+                    'uin': record[2],
+                    'uncom_cert': record[3],
+                    'com_cert': record[4],
+                    'purpose_statement': record[5],
+                    'app_date': record[6]
+                }
+                for record in application_records
+            ]
+
+            return jsonify(applications_list)
+
+        except Exception as e:
+            g.conn.rollback()
+            return {"response": f"Error fetching user applications: {e}"} 
+
 def fetch_user_applications(uin):
     '''
     Fetch all applications for a user and return as JSON
