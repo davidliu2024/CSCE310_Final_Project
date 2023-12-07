@@ -25,12 +25,13 @@ export default function Home() {
       }
     })
     .then((res, err) => {
+      console.log(err)
       if (err) {
         setError('404') // TODO: add other error types
       }
       else {
         const userType = "admin" // TODO: replace w/ the actual command
-
+        console.log('yooo')
         if (userType.toLowerCase() === "student") {
           globalState.setUsername(username)
           globalState.setAuthToken('student')
