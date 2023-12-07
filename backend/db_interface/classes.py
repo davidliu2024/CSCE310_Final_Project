@@ -13,9 +13,11 @@ class CourseClass:
             self.conn = None
 
     def set_connection_manually(self, conn):
+        assert isinstance(conn, psycopg.Connection)
         self.conn = conn
 
     def close_connection_manually(self):
+        assert isinstance(self.conn, psycopg.Connection)
         self.conn.close()
 
     def __repr__(self):
@@ -34,7 +36,7 @@ class CourseClass:
                     ''',
                     (self.class_name, self.class_description, self.class_type)
                 )
-                self.class_id = cur.fetchone()[0]
+                self.class_id = cur.fetchone()
                 self.conn.commit()
                 return "success"
             except Exception as e:
@@ -56,7 +58,7 @@ class CourseClass:
             except Exception as e:
                 self.conn.rollback()
                 print(f"Error fetching class: {e}")
-                return None
+                return []
 
     def auto_fill(self):
         assert isinstance(self.conn, psycopg.Connection)
@@ -118,3 +120,15 @@ class CourseClass:
             except Exception as e:
                 self.conn.rollback()
                 return f"Error deleting class: {e}"
+
+    def get_json(self):
+        """
+        Return a JSON representation of the CourseClass object.
+        """
+        class_json = {
+            "class_id": self.class_id,
+            "class_name": self.class_name,
+            "class_description": self.class_description,
+            "class_type": self.class_type
+        }
+        return class_json

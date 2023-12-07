@@ -48,7 +48,7 @@ def delete_program_by_num(program_num) -> Response:
     response = current_program.delete()
     return response
 
-@bp.route("/<int:program_num>", methods=["PATCH"])
+@bp.route("/<int:program_num>", methods=["PUT"])
 @authenticate
 @check_if_admin
 def update_program(program_num) -> Response:
@@ -58,7 +58,7 @@ def update_program(program_num) -> Response:
     response = update_program(program_num, request.json)
     return response
 
-@bp.route("/<int:program_num>/activate", methods=["PATCH"])
+@bp.route("/<int:program_num>/activate", methods=["PUT"])
 @authenticate
 @check_if_admin
 def activate_program(program_num) -> Response:
@@ -66,7 +66,7 @@ def activate_program(program_num) -> Response:
     program = Program(program_num=program_num)
     return {"response" : program.activate_program()}
 
-@bp.route("/<int:program_num>/deactivate", methods=["PATCH"])
+@bp.route("/<int:program_num>/deactivate", methods=["PUT"])
 @authenticate
 @check_if_admin
 def deactivate_program(program_num) -> Response:

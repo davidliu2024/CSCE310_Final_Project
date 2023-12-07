@@ -13,9 +13,11 @@ class Certification:
             self.conn = None
 
     def set_connection_manually(self, conn):
+        assert isinstance(conn, psycopg.Connection)
         self.conn = conn
 
     def close_connection_manually(self):
+        assert isinstance(self.conn, psycopg.Connection)
         self.conn.close()
 
     def __repr__(self):
@@ -34,7 +36,7 @@ class Certification:
                     ''',
                     (self.cert_level, self.cert_name, self.cert_description)
                 )
-                self.cert_id = cur.fetchone()[0]
+                self.cert_id = cur.fetchone()
                 self.conn.commit()
                 return "success"
             except Exception as e:
@@ -56,7 +58,7 @@ class Certification:
             except Exception as e:
                 self.conn.rollback()
                 print(f"Error fetching certification: {e}")
-                return None
+                return []
 
     def auto_fill(self):
         assert isinstance(self.conn, psycopg.Connection)

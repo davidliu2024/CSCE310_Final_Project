@@ -8,9 +8,10 @@ bp = Blueprint("events", __name__, url_prefix="/events")
 @bp.route("", methods=["POST"])
 @authenticate
 @check_if_admin
-def create_new_event() -> Response:
+def create_new_event():
     assert isinstance(g.conn, psycopg.Connection)
     good_request = request.json is not None
+    assert isinstance(request.json, dict)
     good_request &= all(field in request.json for field in ['uin', 'program_num', 'event_name'])
     if not good_request:
         abort(400)
@@ -20,13 +21,13 @@ def create_new_event() -> Response:
 
 @bp.route("", methods=["GET"])
 @authenticate
-def get_all_events() -> Response:
+def get_all_events():
     assert isinstance(g.conn, psycopg.Connection)
     return fetch_all_events()
 
 @bp.route("/<int:event_id>", methods=["GET"])
 @authenticate
-def get_event_by_id(event_id) -> Response:
+def get_event_by_id(event_id):
     assert isinstance(g.conn, psycopg.Connection)
     if not isinstance(event_id, int):
         abort(400)
@@ -39,7 +40,7 @@ def get_event_by_id(event_id) -> Response:
 @bp.route("/<int:event_id>", methods=["DELETE"])
 @authenticate
 @check_if_admin
-def delete_event_by_id(event_id) -> Response:
+def delete_event_by_id(event_id):
     assert isinstance(g.conn, psycopg.Connection)
     if not isinstance(event_id, int):
         abort(400)
@@ -47,11 +48,12 @@ def delete_event_by_id(event_id) -> Response:
     response = current_event.delete()
     return {"response": response}
 
-@bp.route("", methods=["PATCH"])
+@bp.route("", methods=["PUT"])
 @authenticate
-def update_event() -> Response:
+def update_event():
     assert isinstance(g.conn, psycopg.Connection)
     good_request = request.json is not None
+    assert isinstance(request.json, dict)
     good_request &= all(field in request.json for field in ['uin', 'program_num', 'event_name'])
     response = patch_event(request.json)
     return {"response": response}

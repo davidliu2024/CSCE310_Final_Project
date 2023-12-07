@@ -14,7 +14,7 @@ def upload_document_by_appnum(appnum):
 
 @bp.route('/<int:docnum>/document', methods = ['DELETE'])
 @authenticate
-def upload_document_by_appnum(docnum):
+def delete_document_by_appnum(docnum):
     doc = Document(doc_num=docnum)
     response = doc.delete()
     return { "response": response }

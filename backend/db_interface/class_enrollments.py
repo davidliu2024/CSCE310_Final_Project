@@ -15,9 +15,11 @@ class ClassEnrollment:
             self.conn = None
 
     def set_connection_manually(self, conn):
+        assert isinstance(conn, psycopg.Connection)
         self.conn = conn
 
     def close_connection_manually(self):
+        assert isinstance(self.conn, psycopg.Connection)
         self.conn.close()
 
     def __repr__(self):
@@ -36,7 +38,7 @@ class ClassEnrollment:
                     ''',
                     (self.uin, self.class_id, self.class_status, self.semester, self.class_year)
                 )
-                self.ce_num = cur.fetchone()[0]
+                self.ce_num = cur.fetchone()
                 self.conn.commit()
                 return "success"
             except Exception as e:
@@ -58,7 +60,7 @@ class ClassEnrollment:
             except Exception as e:
                 self.conn.rollback()
                 print(f"Error fetching class enrollment: {e}")
-                return None
+                return []
 
     def auto_fill(self):
         assert isinstance(self.conn, psycopg.Connection)

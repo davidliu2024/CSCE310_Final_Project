@@ -14,9 +14,11 @@ class InternApplication:
             self.conn = None
 
     def set_connection_manually(self, conn):
+        assert isinstance(conn, psycopg.Connection)
         self.conn = conn
 
     def close_connection_manually(self):
+        assert isinstance(self.conn, psycopg.Connection)
         self.conn.close()
 
     def __repr__(self):
@@ -35,7 +37,7 @@ class InternApplication:
                     ''',
                     (self.uin, self.intern_id, self.app_status, self.app_year)
                 )
-                self.ia_num = cur.fetchone()[0]
+                self.ia_num = cur.fetchone()
                 self.conn.commit()
                 return "success"
             except Exception as e:
@@ -57,7 +59,7 @@ class InternApplication:
             except Exception as e:
                 self.conn.rollback()
                 print(f"Error fetching intern application: {e}")
-                return None
+                return []
 
     def auto_fill(self):
         assert isinstance(self.conn, psycopg.Connection)

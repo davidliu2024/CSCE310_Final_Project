@@ -8,7 +8,7 @@ bp = Blueprint("users", __name__, url_prefix="/users")
 
 @bp.route("", methods=["POST"])
 @authenticate
-def create_new_user() -> Response:
+def create_new_user():
     assert isinstance(g.conn, psycopg.Connection)
     if request.json is None:
         abort(415)
@@ -26,13 +26,13 @@ def create_new_user() -> Response:
 
 @bp.route("", methods=["GET"])
 @authenticate
-def get_all_users() -> Response:
+def get_all_users():
     assert isinstance(g.conn, psycopg.Connection)
     return fetch_all_users()
 
 @bp.route("/<int:uin>", methods=["GET"])
 @authenticate
-def get_user_by_uin(uin) -> Response:
+def get_user_by_uin(uin):
     assert isinstance(g.conn, psycopg.Connection)
     if not isinstance(uin, int):
         abort(400)
@@ -45,7 +45,7 @@ def get_user_by_uin(uin) -> Response:
 @bp.route("/<int:uin>", methods=["DELETE"])
 @authenticate
 @check_if_admin
-def delete_user_by_uin(uin) -> Response:
+def delete_user_by_uin(uin):
     assert isinstance(g.conn, psycopg.Connection)
     if not isinstance(uin, int):
         abort(400)
@@ -114,8 +114,10 @@ def set_user_by_uin(uin):
 @check_if_admin
 def create_new_student():
     assert isinstance(g.conn, psycopg.Connection)
-    bad_request = ~isinstance(request.json, dict)
-    bad_request |= 'uin' not in request.json
+    if not isinstance(request.json, dict):
+        abort(400)
+    assert isinstance(request.json, dict)
+    bad_request = 'uin' not in request.json
     bad_request |= ~isinstance(request.json['uin'], int)
     bad_request |= len(User(uin = request.json['uin']).fetch()) == 0
     if bad_request:
@@ -124,13 +126,15 @@ def create_new_student():
     new_student = create_college_student(request.json)
     return jsonify(new_student.getJSON())
 
-@bp.route("", methods=["PATCH"])
+@bp.route("", methods=["PUT"])
 @authenticate
 def patch_user():
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
-    bad_request = ~isinstance(request.json, dict)
-    bad_request |= 'uin' not in request.json
+    if not isinstance(request.json, dict):
+        abort(400)
+    assert isinstance(request.json, dict)
+    bad_request = 'uin' not in request.json
     bad_request |= ~isinstance(request.json['uin'], int)
     bad_request |= len(User(uin = request.json['uin']).fetch()) == 0
     if bad_request:
@@ -140,13 +144,15 @@ def patch_user():
     
     return update_user(request.json)
 
-@bp.route("/student", methods=["PATCH"])
+@bp.route("/student", methods=["PUT"])
 @authenticate
 def patch_student():
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
-    bad_request = ~isinstance(request.json, dict)
-    bad_request |= 'uin' not in request.json
+    if not isinstance(request.json, dict):
+        abort(400)
+    assert isinstance(request.json, dict)
+    bad_request = 'uin' not in request.json
     bad_request |= ~isinstance(request.json['uin'], int)
     bad_request |= len(User(uin = request.json['uin']).fetch()) == 0
     if bad_request:

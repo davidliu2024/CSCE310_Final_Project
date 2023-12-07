@@ -2,7 +2,7 @@ from flask import g
 import psycopg
 
 class Document:
-    def __init__(self, app_num, link, doc_type=None, doc_num=None):
+    def __init__(self, app_num=None, link=None, doc_type=None, doc_num=None):
         self.doc_num = doc_num
         self.app_num = app_num
         self.link = link
@@ -13,9 +13,11 @@ class Document:
             self.conn = None
 
     def set_connection_manually(self, conn):
+        assert isinstance(conn, psycopg.Connection)
         self.conn = conn
 
     def close_connection_manually(self):
+        assert isinstance(self.conn, psycopg.Connection)
         self.conn.close()
 
     def __repr__(self):
@@ -33,7 +35,7 @@ class Document:
                     ''',
                     (self.app_num, self.link, self.doc_type)
                 )
-                self.doc_num = cur.fetchone()[0]
+                self.doc_num = cur.fetchone()
                 self.conn.commit()
                 return "success"
             except Exception as e:
@@ -55,7 +57,7 @@ class Document:
             except Exception as e:
                 self.conn.rollback()
                 print(f"Error fetching document: {e}")
-                return None
+                return []
 
     def auto_fill(self):
         assert isinstance(self.conn, psycopg.Connection)

@@ -19,8 +19,6 @@ def connect() -> None:
         connstr = file.read()
     except OSError:
         raise RuntimeError("Could not open PSQL_CONF.")
-    finally:
-        file.close()
     
     try:
         g.conn = psycopg.connect(connstr, autocommit=True)

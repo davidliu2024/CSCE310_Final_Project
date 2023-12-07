@@ -33,6 +33,7 @@ class User:
         self.conn = conn
     
     def closeConnectionManually(self):
+        assert isinstance(self.conn, psycopg.Connection)
         self.conn.close()
 
     def __repr__(self):
@@ -57,7 +58,7 @@ class User:
                 self.conn.rollback()
                 return f"Error creating user: {e}"
     
-    def fetch(self):
+    def fetch(self) -> list:
         assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
@@ -73,7 +74,7 @@ class User:
             except Exception as e:
                 self.conn.rollback()
                 print(f"Error fetching user: {e}")
-                return None
+                return []
     
     def isAdmin(self):
         self.autoFill()

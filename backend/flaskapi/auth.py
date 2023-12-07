@@ -12,7 +12,7 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 @bp.route("", methods=["GET"])
 @authenticate
-def login() -> Response:
+def login() -> dict:
     assert isinstance(g.conn, psycopg.Connection)
     current_user = User(g.useruin)
     current_user.autoFill()
