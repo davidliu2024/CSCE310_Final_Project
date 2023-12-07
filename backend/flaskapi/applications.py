@@ -7,10 +7,7 @@ from db_interface.applications import Application  # Import the Application clas
 
 bp = Blueprint("applications", __name__, url_prefix="/applications")
 
-<<<<<<< HEAD:backend/flaskapi/application.py
-=======
 
->>>>>>> 167d5b42fc45524e0daba6a67ab17025e0dab609:backend/flaskapi/applications.py
 @bp.route("", methods=["POST"])
 @authenticate
 def create_application() -> Response:
