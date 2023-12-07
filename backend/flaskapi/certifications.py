@@ -1,8 +1,7 @@
-from flask import Blueprint, request, g, abort, jsonify
+from flask import Blueprint, request, g, abort
 import psycopg
 from toolkit.user_tools import authenticate, check_if_admin
 from toolkit.certification_tools import *
-from db_interface.users import User
 
 bp = Blueprint("certifications", __name__, url_prefix="/certifications")
 
