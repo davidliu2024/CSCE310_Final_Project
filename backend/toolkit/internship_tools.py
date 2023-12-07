@@ -49,7 +49,7 @@ def fetch_all_internships():
             g.conn.rollback()
             return {"response": f"Error fetching all internships: {e}"}
 
-def patch_internship( internJSON ) -> Internship:
+def patch_internship( internJSON ):
     '''
     Update an existing internship and return the internship with internJSON
     '''
