@@ -2,48 +2,12 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-
-import { useUserStore } from '@/store/store'
 
 export default function Home() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  const [error, setError] = useState('')
-
-  const router = useRouter()
-
-  const globalState = useUserStore()
-
   // todo: user authentication
-  const signIn = async () => {
-    fetch(`${process.env.BASE_PATH}auth/`, {
-      method: 'GET',
-      headers: {
-        'Authorization': 'Basic ' + Buffer.from(username + ":" + password).toString('base64')
-      }
-    })
-    .then((res, err) => {
-      if (err) {
-        setError('404') // TODO: add other error types
-      }
-      else {
-        const userType = "admin" // TODO: replace w/ the actual command
-
-        if (userType.toLowerCase() === "student") {
-          globalState.setUsername(username)
-          globalState.setAuthToken('student')
-          router.push('/student/')
-        }
-        if (userType.toLowerCase() === "admin") {
-          globalState.setPassword(password)
-          globalState.setAuthToken('admin')
-          router.push('/admin/')
-        }
-      }
-    })
-  }
 
   return (
     <main className="bg-[#500000] h-screen flex items-center justify-center">
@@ -62,17 +26,9 @@ export default function Home() {
         <text className='text-sm'>Alternatively: <Link href='/signup' className="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline">sign up</Link> or <Link href='/resetpass' className="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline">reset your password</Link></text>
         
         <div className='flex justify-between my-4'>
-          <button
-            className='bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded'
-            onClick={signIn}
-          >Sign in as student</button>
-          <button
-            className='bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 border-b-4 border-red-700 hover:border-red-500 rounded'
-            onClick={signIn}
-          >Sign in as admin</button>
+          <button className='bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded'>Sign in as student</button>
+          <button className='bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 border-b-4 border-red-700 hover:border-red-500 rounded'>Sign in as admin</button>
         </div>
-
-        { (error) ? '' : ''}
       </div>
     </main>
   )
