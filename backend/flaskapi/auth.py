@@ -4,7 +4,6 @@ from werkzeug.exceptions import Unauthorized
 import psycopg
 import sys
 import os
-# sys.path.insert(1, os.getcwd())
 from db_interface.users import User
 from toolkit.user_tools import *
 
