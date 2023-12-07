@@ -8,12 +8,12 @@ def create_app() -> Flask:
     app = Flask(__name__)
     CORS(app)
 
-    from . import auth, db, users, programs, events, application
+    from . import auth, db, users, programs, events, applications
     app.register_blueprint(auth.bp)
     app.register_blueprint(db.bp)
     app.register_blueprint(users.bp)
     app.register_blueprint(programs.bp)
     app.register_blueprint(events.bp)
-    app.register_blueprint(application.bp)
+    app.register_blueprint(applications.bp)
 
     return app

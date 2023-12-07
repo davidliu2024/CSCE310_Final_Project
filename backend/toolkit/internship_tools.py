@@ -1,7 +1,6 @@
 from flask import g, jsonify
 import psycopg
 from db_interface.internships import Internship
-from db_interface.users import User
 
 def create_internship(internJSON) -> Internship:
     '''
