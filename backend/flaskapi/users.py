@@ -161,9 +161,3 @@ def patch_student():
         abort(401, "Not an admin, can only update your own account")
     
     return update_college_student(request.json)
-
-@bp.route('/<int:appnum>/document', methods = ['POST'])
-@authenticate
-def upload_document_by_appnum(appnum):
-    uploaded_file=request.files.get("file")
-    return upload_document(appnum=appnum, uploaded_file=uploaded_file)

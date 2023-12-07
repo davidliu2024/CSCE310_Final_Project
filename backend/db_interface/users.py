@@ -218,6 +218,26 @@ class User:
             except Exception as e:
                 self.conn.rollback()
                 return f"Error deleting user: {e}"
+    
+    def get_user_programs(self):
+        assert isinstance(self.conn, psycopg.Connection)
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    SELECT * FROM track
+                    WHERE uin=%s
+                    ''',
+                    (self.uin,)
+                )
+                data = cur.fetchall()
+                
+                self.conn.commit()
+
+                return 
+            except Exception as e:
+                self.conn.rollback()
+                return f"Error getting user programs: {e}"
 
     def add_user_to_program(self, program_num):
         assert isinstance(self.conn, psycopg.Connection)

@@ -49,12 +49,22 @@ def submit_application() -> Response:
 
 @bp.route("", methods=["GET"])
 @authenticate
-def get_user_applications():
+@check_if_admin
+def get_all_applications():
+    assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj, User)
+
+    applications = fetch_all_applications()
+    return applications
+
+@bp.route("", methods=["GET"])
+@authenticate
+def get_user_applications() -> Response:
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
 
     applications = fetch_user_applications(g.userobj.uin)
-    return applications
+    return jsonify(applications)
 
 @bp.route("", methods=["PUT"])
 def update_user_application() -> Response:
