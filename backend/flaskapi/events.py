@@ -48,8 +48,10 @@ def delete_event_by_id(event_id):
     response = current_event.delete()
     return {"response": response}
 
+#admins sign students up for events
 @bp.route("", methods=["PUT"])
 @authenticate
+@check_if_admin
 def update_event():
     assert isinstance(g.conn, psycopg.Connection)
     good_request = request.json is not None
