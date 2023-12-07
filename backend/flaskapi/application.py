@@ -1,61 +1,68 @@
-from flask import Flask, Blueprint, request, g, abort, Response, jsonify, session
+
 import psycopg
-from db_interface.users import User
-from toolkit.application_tools import create_application, fetch_user_applications, update_application, delete_application
+from flask import Blueprint, request, g, abort, Response, jsonify
+from toolkit.user_tools import authenticate  # Assuming you have authentication tools
+from toolkit.application_tools import ApplicationTools
+from db_interface.applications import Application  # Import the Application class
 
 bp = Blueprint("applications", __name__, url_prefix="/applications")
 
-@bp.before_request
-def authenticate_user():
-    user_id = session.get('user_id')  # Replace with your actual session variable
-    g.userobj = User(user_id=user_id) if user_id else None
-
 @bp.route("", methods=["POST"])
-def submit_application() -> Response:
+@authenticate
+def create_application() -> Response:
     assert isinstance(g.conn, psycopg.Connection)
-    assert isinstance(g.userobj, User)
+    data = request.json
 
-    good_request = request.json is not None
-    good_request &= all(field in request.json for field in ['program_num', 'uncom_cert', 'com_cert', 'purpose_statement'])
-    if not good_request:
+    required_fields = ['program_num', 'uin']
+    if not all(field in data for field in required_fields):
         abort(400)
 
-    application_response = create_application(g.userobj.uin, request.json)
-    return jsonify({"response": application_response})
+    response = ApplicationTools.create_application(**data)
+    return jsonify({"response": response})
 
 @bp.route("", methods=["GET"])
-def get_user_applications() -> Response:
+@authenticate
+def fetch_application() -> Response:
     assert isinstance(g.conn, psycopg.Connection)
-    assert isinstance(g.userobj, User)
+    data = request.args
 
-    applications = fetch_user_applications(g.userobj.uin)
-    return jsonify(applications)
+    response = ApplicationTools.fetch_application(**data)
+    return jsonify(response)
 
-@bp.route("", methods=["PATCH"])
-def update_user_application() -> Response:
+@bp.route("", methods=["PUT"])
+@authenticate
+def auto_fill_application() -> Response:
     assert isinstance(g.conn, psycopg.Connection)
-    assert isinstance(g.userobj, User)
+    data = request.args
 
-    good_request = request.json is not None
-    good_request &= all(field in request.json for field in ['app_num', 'program_num', 'uncom_cert', 'com_cert', 'purpose_statement'])
-    if not good_request:
-        abort(400)
+    response = ApplicationTools.auto_fill_application(**data)
+    return jsonify({"response": response})
 
-    application_response = update_application(request.json)
-    return jsonify({"response": application_response})
+@bp.route("/<int:app_num>", methods=["PATCH"])
+@authenticate
+def update_application(app_num) -> Response:
+    assert isinstance(g.conn, psycopg.Connection)
+    data = request.json
+
+    response = ApplicationTools.update_application(app_num=app_num, **data)
+    return jsonify({"response": response})
 
 @bp.route("", methods=["DELETE"])
-def delete_user_application() -> Response:
+@authenticate
+def delete_application() -> Response:
     assert isinstance(g.conn, psycopg.Connection)
-    assert isinstance(g.userobj, User)
+    data = request.args
 
-    good_request = request.json is not None
-    good_request &= 'app_num' in request.json
-    if not good_request:
-        abort(400)
+    response = ApplicationTools.delete_application(**data)
+    return jsonify({"response": response})
 
-    application_response = delete_application(request.json['app_num'])
-    return jsonify({"response": application_response})
+@bp.route("/between_dates", methods=["GET"])
+@authenticate
+def fetch_applications_between_dates() -> Response:
+    assert isinstance(g.conn, psycopg.Connection)
+    start_date = request.args.get("start_date")
+    end_date = request.args.get("end_date")
 
-if __name__ == "__main__":
-    bp.run(debug=True)
+    response = ApplicationTools.fetch_applications_between_dates(start_date, end_date)
+    return jsonify(response)
+
