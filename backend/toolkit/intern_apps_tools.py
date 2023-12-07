@@ -8,9 +8,9 @@ def create_intern_application( internAppJSON) -> InternApplication:
     Create a new intern application and return the event with internAppJSON
     '''
     intern_app = InternApplication(
-        ia_num=internAppJSON['ia_num'],
-        uin=internAppJSON['uin'],
-        intern_id=internAppJSON['intern_id'],
+        ia_num=internAppJSON.get('ia_num'),
+        uin=internAppJSON.get('uin'),
+        intern_id=internAppJSON.get('intern_id'),
         app_status=internAppJSON.get('app_status'),
         app_year=internAppJSON.get('app_year'),
     )
@@ -60,9 +60,9 @@ def patch_intern_application(internAppJSON):
     Create a new event and return the event with eventJSON
     '''
     intern_app = InternApplication(
-        ia_num=internAppJSON['ia_num'],
-        uin=internAppJSON['uin'],
-        intern_id=internAppJSON['intern_id'],
+        ia_num=internAppJSON.get('ia_num'),
+        uin=internAppJSON.get('uin'),
+        intern_id=internAppJSON.get('intern_id'),
         app_status=internAppJSON.get('app_status'),
         app_year=internAppJSON.get('app_year'),
     )
@@ -73,9 +73,9 @@ def patch_intern_application(internAppJSON):
 def delete_intern_application(internAppJSON):
 
     intern_app = InternApplication(
-        ia_num = internAppJSON['ia_num']
+        ia_num = internAppJSON.get('ia_num')
     )
 
     intern_app.delete()
 
-    return intern_app
+
