@@ -1,7 +1,8 @@
 from flask import Blueprint, request, g, abort, Response, jsonify
 import psycopg
 import sys
-sys.path.insert(1, "/home/david-liu/david_liu/TAMU/FALL2023/CSCE310/final_project/CSCE310_Final_Project/backend")
+import os
+# sys.path.insert(1, os.getcwd())
 from toolkit.user_tools import authenticate, check_if_admin
 from toolkit.class_tools import *
 from db_interface.classes import CourseClass

@@ -11,3 +11,4 @@ venv/
 playground.py
 db_connection/
 unittests/
+google_drive_credentials.json

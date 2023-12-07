@@ -1,17 +1,8 @@
 from flask import Blueprint, request, g, abort, Response
 import psycopg
-import sys
-sys.path.insert(1, "/home/david-liu/david_liu/TAMU/FALL2023/CSCE310/final_project/CSCE310_Final_Project/backend")
-from db_interface.college_students import CollegeStudent
 from toolkit.user_tools import *
 from toolkit.college_student_tools import *
-
-
-from io import BytesIO
-from googleapiclient.http import MediaIoBaseUpload
-from datetime import datetime
-from google_drive_service import GoogleDriveService
-service = GoogleDriveService().build()
+from toolkit.document_tools import *
 
 bp = Blueprint("users", __name__, url_prefix="/users")
 
@@ -165,40 +156,8 @@ def patch_student():
     
     return update_college_student(request.json)
 
-
-@bp.route('/document/<int:uin>', methods = ['POST'])
+@bp.route('/<int:appnum>/document', methods = ['POST'])
 @authenticate
-def upload_document(uin):
-
-    assert isinstance(g.conn, psycopg.Connection)
-    if not isinstance(uin, int):
-        abort(400)
-    current_user = User(uin=uin)
-    if (len(current_user.fetch()) == 0):
-        abort(404, f"no user with uin: {uin}")
-    current_user.autoFill()
-
-
-
+def upload_document_by_appnum(appnum):
     uploaded_file=request.files.get("file")
-
-    buffer_memory=BytesIO()
-    uploaded_file.save(buffer_memory)
-
-    media_body=MediaIoBaseUpload(uploaded_file, uploaded_file.mimetype, resumable=True)
-
-    created_at= datetime.now().strftime("%Y%m%d%H%M%S")
-    file_metadata={
-        "name":f"{uploaded_file.filename} ({created_at})",
-        "parents" : ['15MVTNBgY3hOXmHpwNiR1vMzOzMXpM3oN']
-    }
-
-    returned_fields="id, name, mimeType, webViewLink, exportLinks"
-    
-    upload_response=service.files().create(
-        body = file_metadata, 
-        media_body=media_body,  
-        fields=returned_fields
-    ).execute()
-
-    return upload_response
+    return upload_document(appnum=appnum, uploaded_file=uploaded_file)

@@ -1,8 +1,5 @@
 from flask import Blueprint, request, g, abort, Response
 import psycopg
-import sys
-sys.path.insert(1, "/home/david-liu/david_liu/TAMU/FALL2023/CSCE310/final_project/CSCE310_Final_Project/backend")
-from db_interface.college_students import CollegeStudent
 from toolkit.user_tools import authenticate, check_if_admin
 from toolkit.event_tools import *
 

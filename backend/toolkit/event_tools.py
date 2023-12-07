@@ -1,8 +1,6 @@
 from flask import Blueprint, request, g, abort, Response, jsonify
 import psycopg
 from datetime import datetime
-import sys
-sys.path.insert(1, "/home/david-liu/david_liu/TAMU/FALL2023/CSCE310/final_project/CSCE310_Final_Project/backend")
 from db_interface.events import Event
 
 def create_event(eventJSON) -> Event:
@@ -47,10 +45,10 @@ def fetch_all_events():
                     'uin': record[1],
                     'program_num': record[2],
                     'event_name': record[3],
-                    'event_start_date': record[4],
-                    'event_start_time': record[5],
-                    'event_end_date': record[6],
-                    'event_end_time': record[7],
+                    'event_start_date': str(record[4]),
+                    'event_start_time': str(record[5]),
+                    'event_end_date': str(record[6]),
+                    'event_end_time': str(record[7]),
                     'event_location': record[8],
                     'event_type': record[9]
                 }

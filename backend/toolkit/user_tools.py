@@ -1,7 +1,6 @@
 from flask import Blueprint, request, g, abort, Response, jsonify
 import psycopg
-import sys
-sys.path.insert(1, "/home/david-liu/david_liu/TAMU/FALL2023/CSCE310/final_project/CSCE310_Final_Project/backend")
+import os
 from db_interface.users import User
 
 def authenticate(func):
@@ -63,6 +62,7 @@ def fetch_all_users():
     Fetch all users and return as JSON
     '''
     assert isinstance(g.conn, psycopg.Connection)
+    print(os.getcwd())
 
     with g.conn.cursor() as cur:
         try:

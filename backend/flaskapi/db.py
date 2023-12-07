@@ -3,7 +3,6 @@ import psycopg
 import psycopg.adapt
 import os
 
-
 bp = Blueprint("db", __name__)
 
 @bp.before_app_request
