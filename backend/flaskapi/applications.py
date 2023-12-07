@@ -49,7 +49,6 @@ def submit_application() -> Response:
 
 @bp.route("", methods=["GET"])
 @authenticate
-@check_if_admin
 def get_user_applications():
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
