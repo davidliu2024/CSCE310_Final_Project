@@ -5,10 +5,6 @@ from toolkit.application_tools import create_application, fetch_user_application
 
 bp = Blueprint("applications", __name__, url_prefix="/applications")
 
-@bp.before_request
-def authenticate_user():
-    user_id = session.get('user_id')  # Replace with your actual session variable
-    g.userobj = User(user_id=user_id) if user_id else None
 
 @bp.route("", methods=["POST"])
 def submit_application() -> Response:
