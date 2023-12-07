@@ -1,5 +1,3 @@
-from flask import g, jsonify
-import psycopg
 from db_interface.class_enrollments import ClassEnrollment
 
 

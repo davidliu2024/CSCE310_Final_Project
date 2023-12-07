@@ -47,7 +47,7 @@ def fetch_all_classes():
             g.conn.rollback()
             return {"response": f"Error fetching all classes: {e}"}
 
-def patch_class(class_id, class_json) -> CourseClass:
+def patch_class(class_id, class_json):
     '''
     Update an existing class and return the class with class_json
     '''

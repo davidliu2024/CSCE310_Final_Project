@@ -1,5 +1,5 @@
 from flask import g, jsonify
-from prompt_toolkit import Application
+from db_interface.applications import Application
 import psycopg
 from toolkit.user_tools import User
 

@@ -1,4 +1,3 @@
-from flask import g, jsonify, request
 from db_interface.documents import Document
 from io import BytesIO
 from googleapiclient.http import MediaIoBaseUpload
@@ -33,6 +32,6 @@ def upload_document(appnum, uploaded_file):
 
 
 def create_new_doc_in_db(appnum, file_link, file_type):
-    new_doc = Document(app_num=appnum, file_link=file_link, file_type=file_type)
+    new_doc = Document(app_num=appnum, link=file_link, doc_type=file_type)
     return {"response": new_doc.create()}
     

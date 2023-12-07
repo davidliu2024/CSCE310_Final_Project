@@ -47,7 +47,7 @@ def fetch_all_programs():
             g.conn.rollback()
             return {"response": f"Error fetching all programs: {e}"}
 
-def patch_program(program_num, programJSON) -> Program:
+def patch_program(program_num, programJSON):
     '''
     Update an existing program and return the program with programJSON
     '''

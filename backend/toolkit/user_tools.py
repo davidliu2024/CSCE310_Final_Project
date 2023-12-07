@@ -12,7 +12,7 @@ def authenticate(func):
     def inner(*args, **kwargs):
         if request.authorization is None or request.authorization.type != "basic":
             abort(401)
-        username = request.authorization.parameters["username"].lower()
+        username = request.authorization.parameters["username"]
         password = request.authorization.parameters["password"]
 
         current_user = User(username = username)

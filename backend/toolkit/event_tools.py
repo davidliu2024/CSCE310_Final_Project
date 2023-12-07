@@ -1,4 +1,4 @@
-from flask import Blueprint, request, g, abort, Response, jsonify
+from flask import g, jsonify
 import psycopg
 from datetime import datetime
 from db_interface.events import Event
@@ -87,7 +87,7 @@ def fetch_events_between_times(self, start_datetime, end_datetime):
             self.conn.rollback()
             return f"Error fetching events between times: {e}"
 
-def patch_event(eventJSON) -> Event:
+def patch_event(eventJSON):
     '''
     Create a new event and return the event with eventJSON
     '''

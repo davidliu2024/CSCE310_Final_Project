@@ -1,4 +1,3 @@
-from flask import Blueprint, request, g, abort, Response, jsonify
 from db_interface.college_students import CollegeStudent
 from toolkit.user_tools import *
 
@@ -25,7 +24,7 @@ def create_college_student(studentJSON) -> CollegeStudent:
     student.create()
     return student
 
-def update_college_student(studentJSON) -> str:
+def update_college_student(studentJSON):
     student = CollegeStudent(
         uin=studentJSON['uin'],
         gender=studentJSON['gender'],

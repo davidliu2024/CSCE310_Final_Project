@@ -3,7 +3,7 @@ import psycopg
 from datetime import date
 
 class Application:
-    def __init__(self, program_num, uin, uncom_cert=None, com_cert=None,app_num=None,
+    def __init__(self, program_num=None, uin=None, uncom_cert=None, com_cert=None,app_num=None,
                  purpose_statement=None):
         self.app_num = app_num
         self.program_num = program_num
