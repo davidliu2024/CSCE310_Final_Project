@@ -1,5 +1,7 @@
 from flask import Blueprint, request
 from db_interface.documents import Document
+from db_interface.applications import Application
+from db_interface.users import User
 from toolkit.user_tools import *
 from toolkit.college_student_tools import *
 from toolkit.document_tools import *
@@ -16,12 +18,22 @@ def upload_document_by_appnum(appnum):
 @bp.route('/<int:docnum>/document', methods = ['DELETE'])
 @authenticate
 def delete_document_by_appnum(docnum):
+    assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj, User)
     doc = Document(doc_num=docnum)
+    doc.auto_fill()
+    appnum = doc.app_num
+    app = Application(app_num = appnum)
+    app.auto_fill()
+    if not (g.userobj.uin == app.uin or g.userobj.isAdmin()):
+        abort(401, "user cannot delete this file")
+
     response = doc.delete()
     return { "response": response }
 
 
 @bp.route("", methods=["POST"])
+@authenticate
 def submit_application() -> Response:
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
@@ -36,12 +48,14 @@ def submit_application() -> Response:
     return jsonify({"response": application_response})
 
 @bp.route("", methods=["GET"])
-def get_user_applications() -> Response:
+@authenticate
+@check_if_admin
+def get_user_applications():
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
 
     applications = fetch_user_applications(g.userobj.uin)
-    return jsonify(applications)
+    return applications
 
 @bp.route("", methods=["PATCH"])
 def update_user_application() -> Response:

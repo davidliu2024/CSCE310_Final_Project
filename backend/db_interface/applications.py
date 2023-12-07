@@ -152,3 +152,19 @@ class Application:
                 self.conn.rollback()
                 return f"Error fetching applications between dates: {e}"
 
+    def get_json(self):
+        # Create a dictionary with the attributes of the object
+        app_dict = {
+            "app_num": self.app_num,
+            "program_num": self.program_num,
+            "uin": self.uin,
+            "uncom_cert": self.uncom_cert,
+            "com_cert": self.com_cert,
+            "purpose_statement": self.purpose_statement,
+            "app_date": str(self.app_date),  # Convert date to string for JSON serialization
+        }
+
+        # Convert the dictionary to a JSON-formatted string
+        app_json = app_dict
+
+        return app_json
