@@ -8,6 +8,16 @@ export default function Home() {
   const [password, setPassword] = useState('')
 
   // todo: user authentication
+  const signInAsStudent = async () => {
+    fetch(`${process.env.BASE_PATH}auth/`, {
+      headers: {
+        'Authorization': 'Basic ' + Buffer.from(username + ":" + password).toString('base64')
+      }
+    })
+    .then((res, err) => {
+
+    })
+  }
 
   return (
     <main className="bg-[#500000] h-screen flex items-center justify-center">
@@ -23,10 +33,10 @@ export default function Home() {
           <input type='text' id='password' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder='Password' value={password} onChange={(e) => setPassword(e.target.value)}/>
         </div>
 
-        <span className='text-sm'>Alternatively: <Link href='/signup' className="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline">sign up</Link> or <Link href='/resetpass' className="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline">reset your password</Link></span>
+        <span className='text-sm'>Alternatively: student<Link href='/signup' className="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline">sign up</Link> or <Link href='/resetpass' className="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline">reset your password</Link></span>
         
         <div className='flex justify-between my-4'>
-          <button className='bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded'>Sign in as student</button>
+          <button className='bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded' onClick={signInAsStudent}>Sign in as student</button>
           <button className='bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 border-b-4 border-red-700 hover:border-red-500 rounded'>Sign in as admin</button>
         </div>
       </div>
