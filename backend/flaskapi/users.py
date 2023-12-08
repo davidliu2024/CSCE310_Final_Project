@@ -7,7 +7,6 @@ from toolkit.document_tools import *
 bp = Blueprint("users", __name__, url_prefix="/users")
 
 @bp.route("", methods=["POST"])
-@authenticate
 def create_new_user()->Response:
     assert isinstance(g.conn, psycopg.Connection)
     if request.json is None:
@@ -22,10 +21,34 @@ def create_new_user()->Response:
         abort(400)
     if not isinstance(request.json["username"], str) or not isinstance(request.json["password"], str):
         abort(400)
-    if (request.json.get("uin")=="ADMIN" and g.userobj.isAdmin()):
+    if (request.json.get("uin")=="ADMIN"):
         response = create_user(request.json)
     else:
         abort(401, "Not admin, no")
+
+    if response == "success":
+        return Response(response, 202)
+    else:
+        return Response(response, 400)
+
+@bp.route("/admin", methods=["POST"])
+@authenticate
+@check_if_admin
+def create_new_user_as_admin()->Response:
+    assert isinstance(g.conn, psycopg.Connection)
+    if request.json is None:
+        abort(415)
+    if not isinstance(request.json, dict):
+        abort(400)
+    assert isinstance(request.json, dict)
+    assert isinstance(g.userobj, User)
+    if "username" not in request.json or "password" not in request.json or "uin" not in request.json:
+        abort(400)
+    if not isinstance(request.json["uin"], int):
+        abort(400)
+    if not isinstance(request.json["username"], str) or not isinstance(request.json["password"], str):
+        abort(400)
+    response = create_user(request.json)
 
     if response == "success":
         return Response(response, 202)
