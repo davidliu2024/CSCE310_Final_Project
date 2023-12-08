@@ -160,15 +160,15 @@ def patch_user()->Response:
     if not isinstance(request.json, dict):
         abort(400)
     assert isinstance(request.json, dict)
-    bad_request = 'uin' not in request.json
-    bad_request |= ~isinstance(request.json['uin'], int)
-    bad_request |= len(User(uin = request.json['uin']).fetch()) == 0
-    if bad_request:
-        abort(400, "Make sure uin exists as a user!")
     if g.userobj.uin != request.json['uin'] and g.userobj.user_type != 'ADMIN':
         abort(401, "Not an admin, can only update your own account")
     
     return Response(update_user(request.json), 202)
+
+@bp.route("/student", methods=["GET"])
+@authenticate
+def get_student():
+    return Response("", 200)
 
 @bp.route("/student", methods=["PUT"])
 @authenticate

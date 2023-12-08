@@ -209,7 +209,7 @@ class User:
                 cur.execute(
                     '''
                     DELETE FROM users
-                    WHERE uin=%s
+                    WHERE uin = %s
                     ''',
                     (self.uin,)
                 )
