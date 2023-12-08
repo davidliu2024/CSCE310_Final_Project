@@ -1,0 +1,1 @@
+postgres://csce_310_master:VnMrodfXk7YGpJqqHHl0hdqWlSmgxEWL@dpg-clkfag9ll56s73arh1t0-a.oregon-postgres.render.com/csce_310_master_db
