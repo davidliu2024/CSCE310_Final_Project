@@ -47,10 +47,10 @@ class User:
             try:
                 cur.execute(
                     '''
-                    INSERT INTO users (uin, first_name, last_name, username, passwords, user_type, email, discord_name, m_initial)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    INSERT INTO users (first_name, last_name, username, passwords, user_type, email, discord_name, m_initial)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
                     ''',
-                    (self.uin, self.first_name, self.last_name, self.username, self.password, self.user_type, self.email, self.discord_name, self.m_initial)
+                    (self.first_name, self.last_name, self.username, self.password, self.user_type, self.email, self.discord_name, self.m_initial)
                 )
                 self.conn.commit()
                 return "success"

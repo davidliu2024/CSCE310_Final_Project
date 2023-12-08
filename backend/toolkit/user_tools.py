@@ -41,7 +41,6 @@ def check_if_admin(func):
 
 def create_user(userJSON):
     user = User(
-        uin=userJSON['uin'],
         first_name=userJSON['first_name'],
         m_initial=userJSON.get('m_initial'),
         last_name=userJSON['last_name'],
