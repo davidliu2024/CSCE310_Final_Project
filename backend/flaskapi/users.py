@@ -10,7 +10,7 @@ bp = Blueprint("users", __name__, url_prefix="/users")
 def create_new_user()->Response:
     assert isinstance(g.conn, psycopg.Connection)
     if request.json is None:
-        abort(415)
+        abort(415, f"response is: {request}")
     if not isinstance(request.json, dict):
         abort(400)
     assert isinstance(request.json, dict)
