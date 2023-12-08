@@ -61,7 +61,12 @@ class Application:
                     ''',
                     (self.app_num, self.program_num, self.uin)
                 )
-                return cur.fetchall()
+                result = cur.fetchall()
+                assert isinstance(cur.description, list)
+
+                columns = [desc[0] for desc in cur.description]
+                json_result = [dict(zip(columns, row)) for row in result]
+                return json_result
             except Exception as e:
                 self.conn.rollback()
                 print(f"Error fetching application: {e}")

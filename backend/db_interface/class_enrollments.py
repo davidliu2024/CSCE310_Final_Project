@@ -1,5 +1,7 @@
 from flask import g
 import psycopg
+import json
+from db_interface.classes import CourseClass
 
 class ClassEnrollment:
     def __init__(self, ce_num=None, uin=None, class_id=None, class_status=None, semester=None, class_year=None):
@@ -52,11 +54,24 @@ class ClassEnrollment:
                 cur.execute(
                     '''
                     SELECT * FROM class_enrollment
-                    WHERE ce_num = %s OR uin = %s OR class_id = %s OR semester = %s OR class_year = %s
+                    WHERE ce_num = %s OR uin = %s OR class_id = %s
                     ''',
                     (self.ce_num, self.uin, self.class_id)
                 )
-                return cur.fetchall()
+                result = cur.fetchall()
+                assert isinstance(cur.description, list)
+
+                columns = [desc[0] for desc in cur.description]
+                json_result = [dict(zip(columns, row)) for row in result]
+
+                for result in json_result:
+                    c = CourseClass(class_id = result.get('class_id'))
+                    c.auto_fill()
+                    result['class_details'] = c.get_json()
+
+
+                return json_result
+
             except Exception as e:
                 self.conn.rollback()
                 print(f"Error fetching class enrollment: {e}")
@@ -115,7 +130,7 @@ class ClassEnrollment:
                     DELETE FROM class_enrollment
                     WHERE ce_num = %s
                     ''',
-                    (self.ce_num)
+                    (self.ce_num,)
                 )
                 self.conn.commit()
                 return "success"

@@ -107,4 +107,4 @@ def update_user(userJSON):
     )
     response = user.update()
 
-    return {"response": response}
+    return response
