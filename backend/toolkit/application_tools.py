@@ -1,5 +1,4 @@
-from email.mime import application
-from flask import g, jsonify, abort
+from flask import g, jsonify, abort, Response
 from db_interface.applications import Application
 import psycopg
 from toolkit.user_tools import User
@@ -18,8 +17,11 @@ def create_application(uin, application_json):
         purpose_statement=application_json.get('purpose_statement')
     )
 
-    application_instance.create()
-    return "success"
+    response = application_instance.create()
+    if response == "success":
+        return Response(response, 202)
+    else:
+        abort(400, response)
 
 def fetch_all_applications():
     '''
@@ -87,7 +89,7 @@ def fetch_user_applications(uin):
                 for record in application_records
             ]
 
-            return jsonify(applications_list)
+            return applications_list
 
         except Exception as e:
             g.conn.rollback()
@@ -108,7 +110,7 @@ def update_application(application_json):
         purpose_statement=application_json.get('purpose_statement')
     )
 
-    return {"response": application_instance.update()}
+    return application_instance.update()
 
 def delete_application(uin, app_num):
     '''
@@ -123,4 +125,4 @@ def delete_application(uin, app_num):
         response = application_instance.delete()
     else:
         abort(401)
-    return {"response": response}
+    return response

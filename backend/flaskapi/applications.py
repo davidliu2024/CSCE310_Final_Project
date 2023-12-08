@@ -78,8 +78,11 @@ def update_user_application() -> Response:
     if not good_request:
         abort(400)
 
-    application_response = update_application(request.json)
-    return jsonify(application_response)
+    response = update_application(request.json)
+    if response == "success":
+        return Response(response, 202)
+    else:
+        abort(400)
 
 @bp.route("<int:app_num>", methods=["DELETE"])
 @authenticate
@@ -90,5 +93,8 @@ def delete_user_application(app_num):
     if not isinstance(app_num, int):
         abort(400)
 
-    application_response = delete_application(g.userobj.uin, app_num)
-    return jsonify({"response": application_response})
+    response = delete_application(g.userobj.uin, app_num)
+    if response == "success":
+        return Response(response, 202)
+    else:
+        abort(400)
