@@ -1,5 +1,8 @@
+from ssl import CertificateError
 from flask import g
 import psycopg
+
+from db_interface.internships import Internship
 
 class InternApplication:
     def __init__(self, uin=None, intern_id=None, app_status=None, app_year=None, ia_num=None):
@@ -55,11 +58,36 @@ class InternApplication:
                     ''',
                     (self.ia_num, self.uin, self.intern_id)
                 )
-                return cur.fetchall()
+                result = cur.fetchall()
+                assert isinstance(cur.description, list)
+
+                columns = [desc[0] for desc in cur.description]
+                json_result = [dict(zip(columns, row)) for row in result]
+                for result in json_result:
+                    c = Internship(intern_id=result.get('intern_id'))
+                    c.auto_fill()
+                    result['internship_details'] = c.get_json()
+                return json_result
             except Exception as e:
                 self.conn.rollback()
                 print(f"Error fetching intern application: {e}")
                 return []
+    
+    def fetch_all(self):
+        assert isinstance(self.conn, psycopg.Connection)
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    SELECT * FROM intern_app
+                    '''
+                )
+                cur.fetchall()
+            except Exception as e:
+                self.conn.rollback()
+                print(f"Error fetching intern application: {e}")
+                return []
+
 
     def auto_fill(self):
         assert isinstance(self.conn, psycopg.Connection)

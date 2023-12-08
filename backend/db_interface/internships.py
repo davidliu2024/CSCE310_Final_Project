@@ -120,3 +120,12 @@ class Internship:
             except Exception as e:
                 self.conn.rollback()
                 return f"Error deleting internship: {e}"
+    
+    def get_json(self):
+        return {
+            'internship_id': self.intern_id,
+            'internship_name': self.internship_name,
+            'internship_description': self.internship_description,
+            'is_gov': self.is_gov,
+            # Add more attributes as needed
+        }

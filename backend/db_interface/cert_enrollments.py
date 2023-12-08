@@ -75,7 +75,6 @@ class CertEnrollment:
                     c.auto_fill()
                     result['cert_details'] = c.get_json()
 
-
                 return json_result
             except Exception as e:
                 self.conn.rollback()

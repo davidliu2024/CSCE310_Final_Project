@@ -36,9 +36,9 @@ def update_internship_application() -> Response:
 
     response = patch_intern_application(request.json)
     if response == "success":
-        return jsonify({"response": response})
+        return Response(response, 202)
     else:
-        abort(401)
+        abort(400)
 
 @bp.route("/<int:ia_num>", methods=["DELETE"])
 @authenticate
@@ -47,4 +47,7 @@ def remove_intern_application(ia_num) -> Response:
     assert isinstance(g.userobj, User)
 
     response = delete_intern_application(ia_num=ia_num)
-    return jsonify(response)
+    if response == "success":
+        return Response(response, 202)
+    else:
+        abort(400)

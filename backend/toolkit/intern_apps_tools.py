@@ -25,34 +25,9 @@ def fetch_intern_applications():
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
 
-    with g.conn.cursor() as cur:
-        try:
-            cur.execute(
-                '''
-                SELECT * FROM intern_app
-                WHERE uin = %s
-                ''',
-                (g.userobj.uin,)
-            )
-            intern_app_records = cur.fetchall()
+    applications = InternApplication(uin=g.userobj.uin).fetch()
+    return jsonify(applications)
 
-            # Convert the result to a list of dictionaries
-            intern_app_list = [
-                {
-                    'ia_num': record[0],
-                    'uin': record[1],
-                    'intern_id': record[2],
-                    'app_status': record[3],
-                    'app_year': str(record[4]),
-                }
-                for record in intern_app_records
-            ]
-
-            return jsonify(intern_app_list)
-
-        except Exception as e:
-            g.conn.rollback()
-            return {"response" : f"Error fetching all intern applications: {e}"}
 
 
 def fetch_all_intern_applications():
@@ -60,33 +35,8 @@ def fetch_all_intern_applications():
     Fetch all intern applications and return as JSON
     '''
     assert isinstance(g.conn, psycopg.Connection)
-
-    with g.conn.cursor() as cur:
-        try:
-            cur.execute(
-                '''
-                SELECT * FROM intern_app
-                '''
-            )
-            intern_app_records = cur.fetchall()
-
-            # Convert the result to a list of dictionaries
-            intern_app_list = [
-                {
-                    'ia_num': record[0],
-                    'uin': record[1],
-                    'intern_id': record[2],
-                    'app_status': record[3],
-                    'app_year': str(record[4]),
-                }
-                for record in intern_app_records
-            ]
-
-            return jsonify(intern_app_list)
-
-        except Exception as e:
-            g.conn.rollback()
-            return {"response" : f"Error fetching all intern applications: {e}"}
+    applications = InternApplication().fetch_all()
+    return jsonify(applications)
 
 
 
