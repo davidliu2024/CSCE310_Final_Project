@@ -1,4 +1,4 @@
-from flask import g, jsonify
+from flask import g, jsonify, Response
 import psycopg
 from db_interface.intern_apps import InternApplication
 from db_interface.users import User
@@ -12,11 +12,10 @@ def create_intern_application(internAppJSON):
         uin=g.userobj.uin,
         intern_id=internAppJSON.get('intern_id'),
         app_status=internAppJSON.get('app_status'),
-        app_year=internAppJSON.get('year')
+        app_year=internAppJSON.get('app_year')
     )
 
-    intern_app.create()
-    return intern_app.get_json()
+    return Response(intern_app.create(),200)
 
 
 def fetch_intern_applications():

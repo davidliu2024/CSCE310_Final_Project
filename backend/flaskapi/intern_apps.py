@@ -6,7 +6,7 @@ bp = Blueprint("intern-apps", __name__, url_prefix="/intern-apps")
 
 @bp.route('', methods = ['POST'])
 @authenticate
-def create_intern_app(appnum):
+def create_intern_app():
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
     return create_intern_application(request.json)
