@@ -57,5 +57,7 @@ def update_certification(cert_id):
         abort(400)
     assert isinstance(request.json, dict)
     good_request = all(field in request.json for field in ['cert_level', 'cert_name', 'cert_description'])
+    if not good_request:
+        abort(400)
     response = patch_certification(cert_id, request.json)
     return response
