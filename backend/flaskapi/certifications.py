@@ -61,3 +61,4 @@ def update_certification(cert_id):
         abort(400)
     response = patch_certification(cert_id, request.json)
     return response
+

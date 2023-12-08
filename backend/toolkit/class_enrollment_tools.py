@@ -1,6 +1,15 @@
 from db_interface.class_enrollments import ClassEnrollment
-from flask import Response, jsonify
+from db_interface.users import User
+from flask import Response, jsonify, g
 
+def fetch_enrollments()->Response:
+    assert isinstance(g.userobj, User)
+    enrollment = ClassEnrollment(uin=g.userobj.uin)
+    results = enrollment.fetch()
+    return jsonify(results)
+
+    
+    
 
 def create_enrollment(enrollmentJSON) -> Response:
     enrollment = ClassEnrollment(
