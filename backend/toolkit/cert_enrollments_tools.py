@@ -75,9 +75,6 @@ def patch_cert_enrollment(cert_enrollment_json):
 
     return {"response": cert_enrollment_instance.update()}
 
-
-
-
 def delete_cert_enrollment( certEnrollmentJSON):
     cert_enrollment = CertEnrollment(
         certe_num = certEnrollmentJSON.get('cert_num')

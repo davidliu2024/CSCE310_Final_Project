@@ -58,7 +58,7 @@ class ClassEnrollment:
                     ''',
                     (self.ce_num, self.uin, self.class_id)
                 )
-                result= cur.fetchall()
+                result = cur.fetchall()
                 assert isinstance(cur.description, list)
 
                 columns = [desc[0] for desc in cur.description]

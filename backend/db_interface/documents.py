@@ -53,7 +53,12 @@ class Document:
                     ''',
                     (self.doc_num, self.app_num)
                 )
-                return cur.fetchall()
+                result = cur.fetchall()
+                assert isinstance(cur.description, list)
+
+                columns = [desc[0] for desc in cur.description]
+                json_result = [dict(zip(columns, row)) for row in result]
+                return json_result
             except Exception as e:
                 self.conn.rollback()
                 print(f"Error fetching document: {e}")
