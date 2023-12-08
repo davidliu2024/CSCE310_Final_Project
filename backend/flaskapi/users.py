@@ -79,6 +79,20 @@ def delete_user_by_uin(uin):
     response = current_user.delete()
     return {"response": response}
 
+@bp.route("/deactivate", methods=["PUT"])
+@authenticate
+@check_if_admin
+def deactivate_user_as_student(uin)->Response:
+    assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj, User)
+
+    if not isinstance(uin, int):
+        abort(400)
+    
+    current_user = User(uin=g.userobj.uin)
+    response = current_user.deactivate_user()
+    return Response(response, 202)
+
 @bp.route("/<int:uin>/deactivate", methods=["PUT"])
 @authenticate
 @check_if_admin

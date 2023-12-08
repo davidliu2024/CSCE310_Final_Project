@@ -40,7 +40,7 @@ def update_internship_application() -> Response:
     else:
         abort(401)
 
-@bp.route("/<int:ia_num>", methods=["GET"])
+@bp.route("/<int:ia_num>", methods=["DELETE"])
 @authenticate
 def remove_intern_application(ia_num) -> Response:
     assert isinstance(g.conn, psycopg.Connection)

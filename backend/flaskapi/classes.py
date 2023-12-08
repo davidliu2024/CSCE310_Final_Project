@@ -1,6 +1,5 @@
 from flask import Blueprint, request, g, abort, Response, jsonify
 import psycopg
-from flaskapi import auth
 from toolkit.class_enrollment_tools import create_enrollment
 from toolkit.user_tools import authenticate, check_if_admin
 from toolkit.class_tools import *
