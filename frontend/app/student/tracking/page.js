@@ -9,106 +9,32 @@ import { AgGridReact } from 'ag-grid-react'; // React Grid Logic
 import "ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 
-const deactivateButton = (props) => {
-  const deactivateReq = async () => {
-    if (props.globalState.username === props.data.username) {
-      props.setStatusCode(1000)
-    }
-    else {
-      // update in DB
-      const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/users/${props.data.uin}/deactivate`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': 'Basic ' + Buffer.from(props.globalState.username + ":" + props.globalState.password).toString('base64')
-        }
-      })
-
-      const code = response.status
-      props.setStatusCode(code)
-
-      // update locally
-      const deactivatedRow = props.theData.find(e => e.uin === props.data.uin)
-      const newRow = { ...deactivatedRow, user_type: "DEACTIVATED" }
-      const restOfData = props.theData.filter(e => e.uin !== props.data.uin)
-      props.setData([...restOfData, newRow])
-    }
-  }
-
-  const reactivateReq = async () => {
-    console.log('reactivating')
-    if (props.globalState.username === props.data.username) {
-      props.setStatusCode(1000)
-    }
-    else {
-      // update in DB
-      const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/users/${props.data.uin}/activate`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': 'Basic ' + Buffer.from(props.globalState.username + ":" + props.globalState.password).toString('base64')
-        }
-      })
-
-      console.log('reactinvaitng 2')
-      const code = response.status
-      props.setStatusCode(code)
-
-      // update locally
-      const activatedRow = props.theData.find(e => e.uin === props.data.uin)
-      const newRow = { ...activatedRow, user_type: "USER" }
-      const restOfData = props.theData.filter(e => e.uin !== props.data.uin)
-      props.setData([...restOfData, newRow])
-    }
-  }
-
-  return (
-    props.data.user_type === "DEACTIVATED" ?
-      <button
-        onClick={reactivateReq}
-        className='bg-green-500 hover:bg-green-400 text-white font-bold px-4 rounded h-10'
-      >
-        Reactivate
-      </button>
-      :
-      <button
-        onClick={deactivateReq}
-        className='bg-orange-500 hover:bg-orange-400 text-white font-bold px-4 rounded h-10'
-      >
-        Deactivate
-      </button>
-  )
-
-}
-
 const deleteButton = (props) => {
   const deleteReq = async () => {
-    if (props.globalState.username === props.data.username) {
-      props.setStatusCode(1100)
-    }
-    else {
-      // update locally
-      const restOfData = props.theData.filter(e => e.uin !== props.data.uin)
-      props.setData([...restOfData])
+    const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/users/${props.data.uin}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': 'Basic ' + Buffer.from(username + ":" + password).toString('base64')
+      }
+    })
 
-      const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/users/${props.data.uin}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': 'Basic ' + Buffer.from(props.globalState.username + ":" + props.globalState.password).toString('base64')
-        }
-      })
+    console.log(response)
+    // const code = response.status
 
-      const code = response.status
-      props.setStatusCode(code)
+    // if (code === 200) {
+      // delete row from the table
+    // }
+    // else {
 
-      console.log('res: ', response)
-    }
+    // }
+
   }
 
   return (
     <button
       onClick={deleteReq}
       className='bg-red-500 hover:bg-red-400 text-white font-bold px-4 rounded h-10'
-    >
-      Delete
+    > Delete
     </button>
   )
 }
@@ -127,7 +53,6 @@ export default function Home() {
 
   // get initial data
   useEffect(() => {
-    console.log('fetching :)')
     const fetchUsers = async () => {
       console.log('sup1')
       const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/users`, {
@@ -187,9 +112,6 @@ export default function Home() {
   // TODO: save the data
   const saveData = () => {
     // TODO: create new users
-    // 0. get the new users
-    const uins = data.map(e => e.uin)
-    console.log(uins)
 
     // TODO: update admin status
 
@@ -235,36 +157,12 @@ export default function Home() {
         {!areEmailsValid ?
           <span className="text-sm text-red-600">Ensure no emails are empty & all are valid</span> : ''
         }
-        {
-          statusCode === 800 ?
-            <span className="text-sm text-red-600">❌ Deactivate user failed</span> : ''
-        }
-        {
-          statusCode === 900 ?
-            <span className="text-sm text-red-600">❌ Delete user failed</span> : ''
-        }
-        {
-          statusCode === 1000 ?
-            <span className="text-sm text-red-600">❌ Cannot deactivate yourself</span> : ''
-        }
-        {
-          statusCode === 1100 ?
-            <span className="text-sm text-red-600">❌ Cannot delete yourself</span> : ''
-        }
       </div>
 
       <div className="ag-theme-quartz h-screen">
-        <AgGridReact
+        {/* <AgGridReact
           onCellKeyDown={validateEmails}
           rowData={data}
-          // defaultColDef={{
-          //   cellStyle: () => ({
-          //     display: "flex",
-          //     alignItems: "center",
-          //     justifyContent: "center"
-          //   })
-          // }}
-
           columnDefs={[
             {
               "field": "uin",
@@ -322,26 +220,14 @@ export default function Home() {
             },
             {
               "headerName": "Deactivate",
-              "cellRenderer": deactivateButton,
-              "cellRendererParams": {
-                "setStatusCode": setStatusCode,
-                "setData": setData,
-                "theData": data,
-                "globalState": globalState
-              }
+              // "cellRenderer": <button
             },
             {
               "headerName": "Delete",
-              "cellRenderer": deleteButton,
-              "cellRendererParams": {
-                "setStatusCode": setStatusCode,
-                "setData": setData,
-                "theData": data,
-                "globalState": globalState
-              }
+              "cellRenderer": deleteButton
             }
           ]}
-        />
+        /> */}
       </div>
     </main>
   )

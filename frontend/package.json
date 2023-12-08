@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
-    "@tanstack/react-table": "^8.10.7",
+    "ag-grid-react": "^31.0.0",
+    "email-validator": "^2.0.4",
     "next": "14.0.3",
     "react": "^18",
     "react-dom": "^18",
