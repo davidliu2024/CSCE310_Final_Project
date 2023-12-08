@@ -144,10 +144,10 @@ class Event:
             "uin": self.uin,
             "program_num": self.program_num,
             "event_name": self.event_name,
-            "event_start_date": self.event_start_date,
-            "event_start_time": self.event_start_time,
-            "event_end_date": self.event_end_date,
-            "event_end_time": self.event_end_time,
+            "event_start_date": str(self.event_start_date),
+            "event_start_time": str(self.event_start_time),
+            "event_end_date": str(self.event_end_date),
+            "event_end_time": str(self.event_end_time),
             "event_location": self.event_location,
             "event_type": self.event_type
         }
