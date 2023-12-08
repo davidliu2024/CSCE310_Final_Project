@@ -50,7 +50,8 @@ def fetch_documents(uin=None, app_num=None):
             links = d.fetch()
             for link in links:
                 results.append({"program_name": p.program_name,
-                                "doc_link": link.get("link")
+                                "doc_link": link.get("link"),
+                                "doc_num": link.get("doc_num")
                                 })
         return jsonify(results)
     elif app_num is not None:

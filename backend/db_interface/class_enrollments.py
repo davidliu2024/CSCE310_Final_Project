@@ -130,7 +130,7 @@ class ClassEnrollment:
                     DELETE FROM class_enrollment
                     WHERE ce_num = %s
                     ''',
-                    (self.ce_num)
+                    (self.ce_num,)
                 )
                 self.conn.commit()
                 return "success"

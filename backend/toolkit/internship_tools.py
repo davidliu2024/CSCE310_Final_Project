@@ -1,8 +1,9 @@
+from sys import intern
 from flask import g, jsonify
 import psycopg
 from db_interface.internships import Internship
 
-def create_internship(internJSON) -> Internship:
+def create_internship(internJSON):
     '''
     Create a new internship and return the program with internJSON
     '''
@@ -13,8 +14,8 @@ def create_internship(internJSON) -> Internship:
         is_gov = internJSON.get('is_gov')
     )
 
-    internship.create()
-    return internship
+    response = internship.create()
+    return response
 
 def fetch_all_internships():
     '''
@@ -60,3 +61,7 @@ def patch_internship( internJSON ):
     )
 
     return {"response": internship.update()}
+
+def remove_internship(id):
+    internship = Internship(intern_id=id)
+    return internship.delete()

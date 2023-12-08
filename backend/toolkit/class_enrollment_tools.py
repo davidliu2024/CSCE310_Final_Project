@@ -38,6 +38,7 @@ def delete_enrollment(enrollmentJSON) -> Response:
 
 def update_enrollment(enrollmentJSON):
     enrollment = ClassEnrollment(
+        ce_num=enrollmentJSON.get('ce_num'),
         uin=enrollmentJSON.get('uin'),
         class_id=enrollmentJSON.get('class_id'),
         class_status=enrollmentJSON.get('class_status'),
