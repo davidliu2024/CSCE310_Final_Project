@@ -14,16 +14,14 @@ def create_new_user()->Response:
     if not isinstance(request.json, dict):
         abort(400)
     assert isinstance(request.json, dict)
-    if "username" not in request.json or "password" not in request.json or "uin" not in request.json:
-        abort(400)
-    if not isinstance(request.json["uin"], int):
+    if "username" not in request.json or "password" not in request.json:
         abort(400)
     if not isinstance(request.json["username"], str) or not isinstance(request.json["password"], str):
         abort(400)
-    if (request.json.get("uin")=="ADMIN"):
-        response = create_user(request.json)
-    else:
+    if (request.json.get("user_type")=="ADMIN"):
         abort(401, "Not admin, no")
+    else:
+        response = create_user(request.json)
 
     if response == "success":
         return Response(response, 202)
