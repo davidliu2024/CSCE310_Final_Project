@@ -14,7 +14,6 @@ def create_new_user()->Response:
     if not isinstance(request.json, dict):
         abort(400)
     assert isinstance(request.json, dict)
-    assert isinstance(g.userobj, User)
     if "username" not in request.json or "password" not in request.json or "uin" not in request.json:
         abort(400)
     if not isinstance(request.json["uin"], int):
