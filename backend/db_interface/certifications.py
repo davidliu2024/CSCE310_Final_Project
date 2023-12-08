@@ -120,3 +120,14 @@ class Certification:
             except Exception as e:
                 self.conn.rollback()
                 return f"Error deleting certification: {e}"
+
+    def get_json(self):
+        """
+        Return JSON representation of the Certification object.
+        """
+        return {
+            "cert_id": self.cert_id,
+            "cert_level": self.cert_level,
+            "cert_name": self.cert_name,
+            "cert_description": self.cert_description
+        }
