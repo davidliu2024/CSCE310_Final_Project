@@ -8,7 +8,7 @@ def create_app() -> Flask:
     app = Flask(__name__)
     CORS(app)
 
-    from . import auth, db, users, programs, events, applications, classes, certifications
+    from . import auth, db, users, programs, events, applications, classes, certifications, intern_apps, internships
     app.register_blueprint(auth.bp)
     app.register_blueprint(db.bp)
     app.register_blueprint(users.bp)
@@ -17,5 +17,8 @@ def create_app() -> Flask:
     app.register_blueprint(applications.bp)
     app.register_blueprint(classes.bp)
     app.register_blueprint(certifications.bp)
+    app.register_blueprint(internships.bp)
+    app.register_blueprint(intern_apps.bp)
+
 
     return app
