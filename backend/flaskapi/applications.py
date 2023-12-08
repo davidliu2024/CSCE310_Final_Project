@@ -30,9 +30,9 @@ def get_document_by_uin():
     assert isinstance(g.userobj, User)
     return fetch_documents(uin=g.userobj.uin)
 
-@bp.route('/<int:docnum>/document', methods = ['DELETE'])
+@bp.route('/documents/<int:docnum>', methods = ['DELETE'])
 @authenticate
-def delete_document_by_appnum(docnum):
+def delete_document_by_appnum(docnum)->Response:
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
     doc = Document(doc_num=docnum)
@@ -44,7 +44,7 @@ def delete_document_by_appnum(docnum):
         abort(401, "user cannot delete this file")
 
     response = doc.delete()
-    return { "response": response }
+    return Response(response, 202)
 
 
 @bp.route("", methods=["POST"])
