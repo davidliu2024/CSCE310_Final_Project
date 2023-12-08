@@ -30,7 +30,7 @@ def get_document_by_uin():
     assert isinstance(g.userobj, User)
     return fetch_documents(uin=g.userobj.uin)
 
-@bp.route('/<int:docnum>/document', methods = ['DELETE'])
+@bp.route('/documents/<int:docnum>', methods = ['DELETE'])
 @authenticate
 def delete_document_by_appnum(docnum):
     assert isinstance(g.conn, psycopg.Connection)
