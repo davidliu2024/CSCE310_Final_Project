@@ -170,6 +170,11 @@ def patch_user()->Response:
     
     return Response(update_user(request.json), 202)
 
+@bp.route("/student", methods=["GET"])
+@authenticate
+def get_student():
+    return Response("", 200)
+
 @bp.route("/student", methods=["PUT"])
 @authenticate
 def patch_student():
