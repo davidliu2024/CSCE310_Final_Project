@@ -160,10 +160,7 @@ def patch_user()->Response:
     if not isinstance(request.json, dict):
         abort(400)
     assert isinstance(request.json, dict)
-    bad_request = 'uin' not in request.json
-    bad_request |= ~isinstance(request.json['uin'], int)
-    if bad_request:
-        abort(400, "Make sure uin!")
+
     if g.userobj.uin != request.json['uin'] and g.userobj.user_type != 'ADMIN':
         abort(401, "Not an admin, can only update your own account")
     
