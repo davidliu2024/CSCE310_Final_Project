@@ -125,7 +125,7 @@ export default function Home() {
 
   return (
     <main className="h-screen flex flex-col px-5 py-3 gap-5">
-      <h1 class="text-3xl">Manage Users</h1>
+      <h1 className="text-3xl">Manage Users</h1>
 
       <div className="flex gap-3">
         <button

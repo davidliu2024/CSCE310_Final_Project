@@ -17,16 +17,19 @@ export default function Home() {
     console.log('sup2')
     const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/users`, {
       method: 'POST',
-      body: {
-        username: username,
-        password: password,
-        first_name: firstName,
-        last_name: lastName,
-        email: email
-      }
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "username": username,
+        "password": password,
+        "first_name": firstName,
+        "last_name": lastName,
+        "email": email
+      })
     })
 
-    console.log('response: ', response)
     const code = response.status
     setStatusCode(code)
   }
