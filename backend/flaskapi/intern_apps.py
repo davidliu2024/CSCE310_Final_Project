@@ -11,8 +11,6 @@ def create_intern_app(appnum):
     assert isinstance(g.userobj, User)
     return create_intern_application(request.json)
 
-
-
 @bp.route('', methods = ['GET'])
 @authenticate
 def get_intern_applications():
@@ -23,7 +21,6 @@ def get_intern_applications():
     else:
         response = fetch_intern_applications()
     return response
-
 
 @bp.route("", methods=["PUT"])
 @authenticate

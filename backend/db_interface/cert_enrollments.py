@@ -131,3 +131,15 @@ class CertEnrollment:
             except Exception as e:
                 self.conn.rollback()
                 return f"Error deleting certification enrollment: {e}"
+
+    def get_json(self):
+        return {
+            "certe_num": self.certe_num,
+            "uin": self.uin,
+            "cert_id": self.cert_id,
+            "cert_status": self.cert_status,
+            "training_status": self.training_status,
+            "program_num": self.program_num,
+            "semester": self.semester,
+            "cert_year": self.cert_year
+        }

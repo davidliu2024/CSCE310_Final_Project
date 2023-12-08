@@ -39,8 +39,7 @@ def check_if_admin(func):
     inner.__name__=func.__name__
     return inner
 
-@check_if_admin
-def create_user(userJSON) -> User:
+def create_user(userJSON):
     user = User(
         uin=userJSON['uin'],
         first_name=userJSON['first_name'],
@@ -48,13 +47,13 @@ def create_user(userJSON) -> User:
         last_name=userJSON['last_name'],
         username=userJSON['username'],
         password=userJSON['password'],
-        user_type=userJSON['user_type'],
+        user_type= "USER" if userJSON.get('user_type') == None else userJSON.get('user_type'),
         email=userJSON.get('email'),
         discord_name=userJSON.get('discord_name')
     )
 
-    user.create()
-    return user
+    response = user.create()
+    return response
 
 @check_if_admin
 def fetch_all_users():

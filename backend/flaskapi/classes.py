@@ -1,11 +1,11 @@
 from flask import Blueprint, request, g, abort, Response, jsonify
 import psycopg
-import sys
-import os
-# sys.path.insert(1, os.getcwd())
+from toolkit.class_enrollment_tools import create_enrollment
 from toolkit.user_tools import authenticate, check_if_admin
 from toolkit.class_tools import *
+from toolkit.class_enrollment_tools import *
 from db_interface.classes import CourseClass
+from db_interface.users import User
 
 bp = Blueprint("classes", __name__, url_prefix="/classes")
 
@@ -61,4 +61,46 @@ def update_class(class_id) -> Response:
     assert isinstance(request.json, dict)
     good_request &= all(field in request.json for field in ['class_name', 'class_description', 'class_type'])
     response = patch_class(class_id, request.json)
-    return Response("", 200)
+    return Response(response, 200)
+
+@bp.route("add-enrollment", methods=["POST"])
+@authenticate
+def add_user_to_class() -> Response:
+    assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj, User)
+    if request.json is None:
+        abort(400)
+    assert isinstance(request.json, dict)
+    is_owner = request.json.get("uin") == g.userobj.uin
+    if is_owner:
+        return create_enrollment(request.json)
+    else:
+        abort(401, "Cannot enroll for this person")
+
+@bp.route("remove-enrollment", methods=["DELETE"])
+@authenticate
+def remove_user_from_class() -> Response:
+    assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj, User)
+    if request.json is None:
+        abort(400)
+    assert isinstance(request.json, dict)
+    is_owner = request.json.get("uin") == g.userobj.uin
+    if is_owner:
+        return delete_enrollment(request.json)
+    else:
+        abort(401, "Cannot update enrollment for this person")
+
+@bp.route("update-enrollment", methods=["PUT"])
+@authenticate
+def update_user_in_class() -> Response:
+    assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj, User)
+    if request.json is None:
+        abort(400)
+    assert isinstance(request.json, dict)
+    is_owner = request.json.get("uin") == g.userobj.uin
+    if is_owner:
+        return update_enrollment(request.json)
+    else:
+        abort(401, "Cannot delete enrollment for this person")

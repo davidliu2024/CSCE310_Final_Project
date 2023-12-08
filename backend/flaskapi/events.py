@@ -2,6 +2,7 @@ from flask import Blueprint, request, g, abort, Response
 import psycopg
 from toolkit.user_tools import authenticate, check_if_admin
 from toolkit.event_tools import *
+from db_interface.users import User
 
 bp = Blueprint("events", __name__, url_prefix="/events")
 
@@ -50,6 +51,7 @@ def delete_event_by_id(event_id):
 
 @bp.route("", methods=["PUT"])
 @authenticate
+@check_if_admin
 def update_event():
     assert isinstance(g.conn, psycopg.Connection)
     good_request = request.json is not None
@@ -57,3 +59,25 @@ def update_event():
     good_request &= all(field in request.json for field in ['uin', 'program_num', 'event_name'])
     response = patch_event(request.json)
     return {"response": response}
+
+@bp.route("<int:event_num>/add-user/<int:uin>", methods=["POST"])
+@authenticate
+@check_if_admin
+def add_to_event(event_num, uin):
+    assert isinstance(g.conn, psycopg.Connection)
+    if not isinstance(event_num, int):
+        abort(400)
+    user = User(uin=uin)
+    response = user.add_user_to_event(event_id=event_num)
+    return { "response": response }
+
+@bp.route("<int:event_num>/remove-user/<int:uin>", methods=["POST"])
+@authenticate
+@check_if_admin
+def remove_from_event(event_num, uin):
+    assert isinstance(g.conn, psycopg.Connection)
+    if not isinstance(event_num, int):
+        abort(400)
+    user = User(uin=uin)
+    response = user.remove_user_from_event(event_id=event_num)
+    return { "response": response }

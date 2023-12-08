@@ -147,7 +147,7 @@ class User:
                     SET user_type = %s
                     WHERE uin = %s
                     ''',
-                    ('ACTIVATED', self.uin)
+                    ('USER', self.uin)
                 )
                 self.conn.commit()
                 self.user_type = 'USER'
@@ -281,6 +281,39 @@ class User:
                 self.conn.rollback()
                 return f"Error removing user from program: {e}"
             
+    def add_user_to_event(self, event_id):
+        assert isinstance(self.conn, psycopg.Connection)
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    INSERT INTO event_tracking (event_id, uin)
+                    VALUES (%s, %s)
+                    ''',
+                    (event_id, self.uin)
+                )
+                self.conn.commit()
+                return "success"
+            except Exception as e:
+                self.conn.rollback()
+                return f"Error adding user to event: {e}"
+
+    def remove_user_from_event(self, event_id):
+        assert isinstance(self.conn, psycopg.Connection)
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    DELETE FROM event_tracking
+                    WHERE uin = %s AND event_id = %s
+                    ''',
+                    (self.uin, event_id)
+                )
+                self.conn.commit()
+                return "success"
+            except Exception as e:
+                self.conn.rollback()
+                return f"Error removing user from event: {e}"
     
     def getJSON(self):
         user_dict = {

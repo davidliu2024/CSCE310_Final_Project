@@ -113,12 +113,22 @@ class ClassEnrollment:
                 cur.execute(
                     '''
                     DELETE FROM class_enrollment
-                    WHERE ce_num = %s OR uin = %s OR class_id = %s
+                    WHERE ce_num = %s
                     ''',
-                    (self.ce_num, self.uin, self.class_id)
+                    (self.ce_num)
                 )
                 self.conn.commit()
                 return "success"
             except Exception as e:
                 self.conn.rollback()
                 return f"Error deleting class enrollment: {e}"
+
+    def get_json(self):
+        return {
+            "ce_num": self.ce_num,
+            "uin": self.uin,
+            "class_id": self.class_id,
+            "class_status": self.class_status,
+            "semester": self.semester,
+            "class_year": self.class_year
+        }

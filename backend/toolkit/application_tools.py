@@ -1,4 +1,5 @@
-from flask import g, jsonify
+from email.mime import application
+from flask import g, jsonify, abort
 from db_interface.applications import Application
 import psycopg
 from toolkit.user_tools import User
@@ -109,11 +110,17 @@ def update_application(application_json):
 
     return {"response": application_instance.update()}
 
-def delete_application(app_num):
+def delete_application(uin, app_num):
     '''
     Delete an existing application
     '''
     assert isinstance(g.conn, psycopg.Connection)
 
     application_instance = Application(app_num=app_num)
-    return {"response": application_instance.delete()}
+    application_instance.auto_fill()
+    is_owner = application_instance.uin == uin
+    if is_owner:
+        response = application_instance.delete()
+    else:
+        abort(401)
+    return {"response": response}
