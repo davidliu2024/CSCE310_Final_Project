@@ -57,6 +57,7 @@ def get_all_users():
 
 @bp.route("/<int:uin>", methods=["GET"])
 @authenticate
+@check_if_admin
 def get_user_by_uin(uin):
     assert isinstance(g.conn, psycopg.Connection)
     if not isinstance(uin, int):
@@ -81,7 +82,7 @@ def delete_user_by_uin(uin):
 @bp.route("/<int:uin>/deactivate", methods=["PUT"])
 @authenticate
 @check_if_admin
-def deactivate_user_by_uin(uin):
+def deactivate_user_by_uin(uin)->Response:
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
 
@@ -90,7 +91,7 @@ def deactivate_user_by_uin(uin):
     
     current_user = User(uin=uin)
     response = current_user.deactivate_user()
-    return {"response": response}
+    return Response(response, 202)
 
 @bp.route("/<int:uin>/activate", methods=["PUT"])
 @authenticate
@@ -153,7 +154,7 @@ def create_new_student():
 
 @bp.route("", methods=["PUT"])
 @authenticate
-def patch_user():
+def patch_user()->Response:
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj, User)
     if not isinstance(request.json, dict):
@@ -167,7 +168,7 @@ def patch_user():
     if g.userobj.uin != request.json['uin'] and g.userobj.user_type != 'ADMIN':
         abort(401, "Not an admin, can only update your own account")
     
-    return update_user(request.json)
+    return Response(update_user(request.json), 202)
 
 @bp.route("/student", methods=["PUT"])
 @authenticate
