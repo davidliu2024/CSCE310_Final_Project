@@ -20,12 +20,20 @@ def create_new_program():
     new_program = create_program(request.json)
     return new_program.get_json()
 
-#gets all programs student is a enrolled in
+#gets all programs available
 @bp.route("", methods=["GET"])
 @authenticate
 def get_all_programs():
     assert isinstance(g.conn, psycopg.Connection)
     return fetch_all_programs()
+
+#get all programs user is a part of
+@bp.route("/user", methods=["GET"])
+@authenticate
+def get_user_programs():
+    assert isinstance(g.conn, psycopg.Connection)
+    return fetch_user_programs()
+
 
 #gets specific program details
 @bp.route("/<int:program_num>", methods=["GET"])
