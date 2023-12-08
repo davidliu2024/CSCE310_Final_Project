@@ -38,7 +38,7 @@ def create_new_user_as_admin()->Response:
     if not isinstance(request.json, dict):
         abort(400)
     assert isinstance(request.json, dict)
-    if "username" not in request.json or "password" not in request.json or "uin" not in request.json:
+    if "username" not in request.json or "password" not in request.json:
         abort(400)
     if not isinstance(request.json["username"], str) or not isinstance(request.json["password"], str):
         abort(400)
