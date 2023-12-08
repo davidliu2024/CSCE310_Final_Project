@@ -71,6 +71,7 @@ export default function Home() {
 
         setData(json)
       }
+
     }
 
     fetchUsers()
@@ -159,10 +160,10 @@ export default function Home() {
         }
       </div>
 
-      <div className="ag-theme-quartz h-screen">
-        <AgGridReact
+      {/* <div className="ag-theme-quartz h-screen"> */}
+        {/* <AgGridReact
           onCellKeyDown={validateEmails}
-          rowData={data}
+          // rowData={data}
           columnDefs={[
             {
               "field": "uin",
@@ -228,7 +229,7 @@ export default function Home() {
             }
           ]}
         />
-      </div>
+      </div> */}
     </main>
   )
 }

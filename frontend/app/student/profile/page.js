@@ -19,14 +19,6 @@ const deleteButton = (props) => {
     })
 
     console.log(response)
-    // const code = response.status
-
-    // if (code === 200) {
-      // delete row from the table
-    // }
-    // else {
-
-    // }
 
   }
 
@@ -55,7 +47,7 @@ export default function Home() {
   useEffect(() => {
     const fetchUsers = async () => {
       console.log('sup1')
-      const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/users`, {
+      const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/users/${globalState.details.uin}`, {
         method: 'GET',
         headers: {
           'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
@@ -67,7 +59,7 @@ export default function Home() {
 
       if (code === 200) {
         const json = await response.json()
-        console.log(json)
+        console.log('jmon', json)
 
         setData(json)
       }
@@ -160,7 +152,7 @@ export default function Home() {
       </div>
 
       <div className="ag-theme-quartz h-screen">
-        <AgGridReact
+        {/* <AgGridReact
           onCellKeyDown={validateEmails}
           rowData={data}
           columnDefs={[
@@ -227,7 +219,7 @@ export default function Home() {
               "cellRenderer": deleteButton
             }
           ]}
-        />
+        /> */}
       </div>
     </main>
   )

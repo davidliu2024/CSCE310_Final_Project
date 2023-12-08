@@ -160,7 +160,7 @@ export default function Home() {
       </div>
 
       <div className="ag-theme-quartz h-screen">
-        <AgGridReact
+        {/* <AgGridReact
           onCellKeyDown={validateEmails}
           rowData={data}
           columnDefs={[
@@ -227,7 +227,7 @@ export default function Home() {
               "cellRenderer": deleteButton
             }
           ]}
-        />
+        /> */}
       </div>
     </main>
   )

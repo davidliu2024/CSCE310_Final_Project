@@ -33,6 +33,8 @@ export default function Home() {
       const json = await response.json()
       console.log(json?.user_type)
 
+      globalState.setDetails(json)
+
       if (json?.user_type.toLowerCase() == "admin") {
           globalState.setUsername(username)
           globalState.setPassword(password)
@@ -45,6 +47,9 @@ export default function Home() {
           globalState.setAuthToken('user')
           router.push('/student/')
           console.log('pushed')
+      }
+      else {
+        setStatusCode(999)
       }
     }
   }
@@ -63,7 +68,7 @@ export default function Home() {
           <input type='text' id='password' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder='Password' value={password} onChange={(e) => setPassword(e.target.value)}/>
         </div>
 
-        <span className='text-sm'>Alternatively: <Link href='/signup' className="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline">sign up</Link> or <Link href='/resetpass' className="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline">reset your password</Link></span>
+        <span className='text-sm'>Alternatively: <Link href='/signup' className="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline">sign up</Link> or <Link href='/resetpass' className="font-medium text-blue-600 underline dark:text-blue-500 hover:no-underline">forgot your password</Link></span>
         
         <div className='flex justify-between my-4'>
           <button
@@ -79,6 +84,7 @@ export default function Home() {
         { (statusCode === 404) ? '❌ Username does not exist': ''}
         { (statusCode === 401) ? '❌ Your password is incorrect' : ''}
         { (statusCode === 400) ? '❌ Please enter both username & password' : ''}
+        { (statusCode === 999) ? '⛔️ Your account has been deactivated. Please email your admin.' : ''}
 
       </div>
     </main>
