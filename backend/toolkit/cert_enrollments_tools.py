@@ -62,6 +62,7 @@ def fetch_user_cert_enrollment():
     assert isinstance(g.conn, psycopg.Connection)
     assert isinstance(g.userobj.uin, User)
     enrollments = CertEnrollment(uin=g.userobj.uin).fetch()
+    return jsonify(enrollments)
 
 def patch_cert_enrollment(cert_enrollment_json):
     '''
