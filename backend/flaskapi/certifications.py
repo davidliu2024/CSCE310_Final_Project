@@ -1,4 +1,4 @@
-from flask import Blueprint, request, g, abort
+from flask import Blueprint, request, g, abort, Response
 import psycopg
 from toolkit.user_tools import authenticate, check_if_admin
 from toolkit.certification_tools import *
@@ -10,14 +10,18 @@ bp = Blueprint("certifications", __name__, url_prefix="/certifications")
 @check_if_admin
 def create_new_certification():
     assert isinstance(g.conn, psycopg.Connection)
-    good_request = request.json is not None
+    if request.json is None:
+        abort(400, "JSON empty")
     assert isinstance(request.json, dict)
-    good_request &= all(field in request.json for field in ['cert_level', 'cert_name', 'cert_description'])
+    good_request = all(field in request.json for field in ['cert_level', 'cert_name', 'cert_description'])
     if not good_request:
         abort(400)
     
-    new_certification = create_certification(request.json)
-    return new_certification.get_json()
+    response = create_certification(request.json)
+    if response=="success":
+        return Response(response, 202)
+    else:
+        abort(400,response)
 
 @bp.route("", methods=["GET"])
 @authenticate
@@ -46,7 +50,10 @@ def delete_certification_by_id(cert_id):
         abort(400)
     current_certification = Certification(cert_id=cert_id)
     response = current_certification.delete()
-    return response
+    if response=="success":
+        return Response(response, 202)
+    else:
+        abort(400,response)
 
 @bp.route("/<int:cert_id>", methods=["PUT"])
 @authenticate
@@ -60,4 +67,8 @@ def update_certification(cert_id):
     if not good_request:
         abort(400)
     response = patch_certification(cert_id, request.json)
-    return response
+    if response=="success":
+        return Response(response, 202)
+    else:
+        abort(400,response)
+

@@ -2,6 +2,7 @@ from flask import g
 import psycopg
 
 from db_interface.certifications import Certification
+from db_interface.programs import Program
 
 class CertEnrollment:
     def __init__(self, certe_num=None, uin=None, cert_id=None, cert_status=None, training_status=None,
@@ -74,6 +75,37 @@ class CertEnrollment:
                     c = Certification(cert_id = result.get('cert_id'))
                     c.auto_fill()
                     result['cert_details'] = c.get_json()
+
+
+                return json_result
+            except Exception as e:
+                self.conn.rollback()
+                print(f"Error fetching certification enrollment: {e}")
+                return []
+    
+    def fetch_all(self):
+        assert isinstance(self.conn, psycopg.Connection)
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                '''
+                SELECT * FROM cert_enrollment
+                '''
+                )
+                result = cur.fetchall()
+                assert isinstance(cur.description, list)
+
+                columns = [desc[0] for desc in cur.description]
+                json_result = [dict(zip(columns, row)) for row in result]
+
+                for result in json_result:
+                    c = Certification(cert_id = result.get('cert_id'))
+                    c.auto_fill()
+                    result['cert_details'] = c.get_json()
+                for result in json_result:
+                    p = Program(program_num=result.get('program_num'))
+                    p.auto_fill()
+                    result['program_details'] = p.get_json()
 
 
                 return json_result

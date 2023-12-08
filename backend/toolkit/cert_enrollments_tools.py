@@ -3,7 +3,7 @@ import psycopg
 from db_interface.cert_enrollments import CertEnrollment
 from db_interface.users import User
 
-def create_cert_enrollment(cert_enrollment_json) -> CertEnrollment:
+def create_cert_enrollment(cert_enrollment_json):
     '''
     Create a new class and return the class with class_json
     '''
@@ -19,44 +19,16 @@ def create_cert_enrollment(cert_enrollment_json) -> CertEnrollment:
 
     )
 
-    cert_enrollment_instance.create()
-    return cert_enrollment_instance
+    return cert_enrollment_instance.create()
 
 def fetch_all_cert_enrollments():
     '''
     Fetch all classes and return as JSON
     '''
     assert isinstance(g.conn, psycopg.Connection)
+    cert_enrollments = CertEnrollment().fetch_all()
+    return cert_enrollments
 
-    with g.conn.cursor() as cur:
-        try:
-            cur.execute(
-                '''
-                SELECT * FROM cert_enrollment
-                '''
-            )
-            cert_enrollment_records = cur.fetchall()
-
-            # Convert the result to a list of dictionaries
-            classes_list = [
-                {
-                    'certe_num': record[0],
-                    'uin': record[1],
-                    'cert_id': record[2],
-                    'cert_status': record[3],
-                    'training_status': record[4],
-                    'program_num': record[5],
-                    'semester': record[6],
-                    'cert_year': record[7]
-                }
-                for record in cert_enrollment_records
-            ]
-
-            return jsonify(classes_list)
-
-        except Exception as e:
-            g.conn.rollback()
-            return {"response": f"Error fetching all cert enrollments: {e}"}
 
 def fetch_user_cert_enrollment():
     assert isinstance(g.conn, psycopg.Connection)
@@ -77,10 +49,9 @@ def patch_cert_enrollment(cert_enrollment_json):
         program_num=cert_enrollment_json.get('program_num'),
         semester = cert_enrollment_json.get('semester'),
         cert_year=cert_enrollment_json.get('cert_year'),
-
     )
 
-    return {"response": cert_enrollment_instance.update()}
+    return cert_enrollment_instance.update()
 
 def delete_cert_enrollment( certEnrollmentJSON):
     cert_enrollment = CertEnrollment(

@@ -2,7 +2,7 @@ from flask import g, jsonify
 import psycopg
 from db_interface.certifications import Certification
 
-def create_certification(certificationJSON) -> Certification:
+def create_certification(certificationJSON):
     '''
     Create a new certification and return the certification with certificationJSON
     '''
@@ -12,8 +12,7 @@ def create_certification(certificationJSON) -> Certification:
         cert_description=certificationJSON.get('cert_description')
     )
 
-    certification.create()
-    return certification
+    return certification.create()
 
 def fetch_all_certifications():
     '''
