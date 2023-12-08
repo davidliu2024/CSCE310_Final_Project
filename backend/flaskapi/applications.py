@@ -22,13 +22,13 @@ def get_document_by_app(app_num):
     app = Application(app_num=app_num)
     app.auto_fill()
     app.uin = g.userobj.uin
-    return fetch_doc_by_app(app_num=app_num)
+    return fetch_documents(app_num=app_num)
 
 @bp.route('/documents/user', methods = ['GET'])
 @authenticate
 def get_document_by_uin():
     assert isinstance(g.userobj, User)
-    return fetch_doc_by_uin(uin=g.userobj.uin)
+    return fetch_documents(uin=g.userobj.uin)
 
 @bp.route('/<int:docnum>/document', methods = ['DELETE'])
 @authenticate

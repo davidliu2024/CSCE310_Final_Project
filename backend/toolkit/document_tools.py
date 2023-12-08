@@ -38,7 +38,7 @@ def create_new_doc_in_db(appnum, file_link, file_type):
     new_doc = Document(app_num=appnum, link=file_link, doc_type=file_type)
     return {"response": new_doc.create()}
     
-def fetch_doc_by_uin(uin=None, app_num=None):
+def fetch_documents(uin=None, app_num=None):
     results = []
     if uin is not None:
         app = Application(uin=uin)
