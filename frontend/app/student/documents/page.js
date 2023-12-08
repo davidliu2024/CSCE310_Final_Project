@@ -6,6 +6,8 @@ import * as EmailValidator from 'email-validator';
 
 import { AgGridReact } from 'ag-grid-react'; // React Grid Logic
 
+
+
 import "ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 
@@ -16,6 +18,7 @@ export default function Home() {
   // data
   const globalState = useUserStore()
   const [allDocuments, setAllDocuments] = useState([])
+  const [allApplications, setApplications] = useState([])
   const [editing, setEditing] = useState(false)
   const [file, setfile] = useState()
 
@@ -28,11 +31,12 @@ export default function Home() {
 
   const deleteButton = (props) => {
     const deleteReq = async () => {
-      console.log(props.route.doc_id)
-      const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/${props.route.doc_id}/document}`, {
+      console.log(props.data)
+      const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/applications/documents/${props.data.doc_num}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
+          'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64'),
+          'Content-Type': 'application/json'
         }
       })
   
@@ -43,7 +47,6 @@ export default function Home() {
         const json = await response.json()
         console.log(json)
 
-        setAllDocuments(json)
       }
   
     }
@@ -65,7 +68,6 @@ export default function Home() {
           'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
         }
       })
-
       const code = response.status
       setStatusCode(code)
 
@@ -75,7 +77,23 @@ export default function Home() {
 
         setAllDocuments(json)
       }
-
+      
+      const application_list = await fetch(`https://csce-310-flask-backend-api.onrender.com/applications`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
+        }
+      })
+      
+      const code2 = response.status
+      setStatusCode(code2)
+  
+      if (code2 === 200) {
+        const json = await application_list.json()
+        console.log(json)
+        setApplications(json)
+      }
+      
     }
 
     fetchUsers()
@@ -145,7 +163,7 @@ export default function Home() {
           columnDefs={[
             {
               "field": "program_name",
-              "headerName": "App Number",
+              "headerName": "Application Description",
               
             },
             {
@@ -156,9 +174,7 @@ export default function Home() {
             {
               "headerName": "Delete",
               "cellRenderer": deleteButton,
-              "cellRendereParams": {
-                "doc_id": 12
-              }
+             
             }
            
           ]}
