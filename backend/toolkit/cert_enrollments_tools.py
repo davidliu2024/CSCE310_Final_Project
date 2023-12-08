@@ -1,6 +1,7 @@
 from flask import g, jsonify
 import psycopg
 from db_interface.cert_enrollments import CertEnrollment
+from db_interface.users import User
 
 def create_cert_enrollment(cert_enrollment_json) -> CertEnrollment:
     '''
@@ -56,6 +57,12 @@ def fetch_all_cert_enrollments():
         except Exception as e:
             g.conn.rollback()
             return {"response": f"Error fetching all cert enrollments: {e}"}
+
+def fetch_user_cert_enrollment():
+    assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj.uin, User)
+    enrollments = CertEnrollment(uin=g.userobj.uin).fetch()
+    return jsonify(enrollments)
 
 def patch_cert_enrollment(cert_enrollment_json):
     '''
