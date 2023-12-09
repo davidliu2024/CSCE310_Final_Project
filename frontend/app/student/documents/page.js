@@ -32,8 +32,7 @@ export default function Home() {
       const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/applications/documents/${props.data.doc_num}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64'),
-          'Content-Type': 'application/json',
+          'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
         }
       })
   
@@ -94,10 +93,11 @@ export default function Home() {
        
         console.log(fileData)
         
-        const res = await fetch(`https://csce-310-flask-backend-api.onrender.com/applications/documents/43`, {
+        const res = await fetch(`https://csce-310-flask-backend-api.onrender.com/applications/documents/14`, {
           method: 'POST',
           headers: {
-            'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64'),
+            'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
+          
           },
           body: fileData
         })
