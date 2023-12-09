@@ -79,7 +79,7 @@ class Application:
                 cur.execute(
                     '''
                     SELECT * FROM applications
-                    WHERE app_num = %s OR (program_num = %s AND uin = %s)
+                    WHERE app_num = %s
                     ''',
                     (self.app_num, self.program_num, self.uin)
                 )
