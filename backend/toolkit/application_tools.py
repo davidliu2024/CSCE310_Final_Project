@@ -120,10 +120,12 @@ def delete_application(uin, app_num):
     assert isinstance(g.conn, psycopg.Connection)
 
     application_instance = Application(app_num=app_num)
-    application_instance.auto_fill()
+    response = application_instance.auto_fill()
     is_owner = application_instance.uin == uin
+    print(response)
+    print('uin:', uin)
     if is_owner:
         response = application_instance.delete()
     else:
-        abort(401)
+        abort(401, "hitting")
     return response

@@ -81,7 +81,7 @@ class Application:
                     SELECT * FROM applications
                     WHERE app_num = %s
                     ''',
-                    (self.app_num, self.program_num, self.uin)
+                    (self.app_num,)
                 )
 
                 application_data = cur.fetchone()

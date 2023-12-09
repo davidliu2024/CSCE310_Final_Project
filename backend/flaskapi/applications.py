@@ -105,7 +105,7 @@ def delete_user_application(app_num):
     assert isinstance(g.userobj, User)
 
     if not isinstance(app_num, int):
-        abort(400)
+        abort(400, "hitting")
 
     response = delete_application(g.userobj.uin, app_num)
     if response == "success":
