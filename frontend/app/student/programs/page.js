@@ -1,67 +1,96 @@
 'use client'
 
 import { useUserStore } from "@/store/store"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import * as EmailValidator from 'email-validator';
 
 import { AgGridReact } from 'ag-grid-react'; // React Grid Logic
 
+
+
 import "ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 
-const deleteButton = (props) => {
-  const deleteReq = async () => {
-    const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/users/${props.data.uin}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': 'Basic ' + Buffer.from(username + ":" + password).toString('base64')
-      }
-    })
 
-    console.log(response)
-    // const code = response.status
-
-    // if (code === 200) {
-      // delete row from the table
-    // }
-    // else {
-
-    // }
-
-  }
-
-  return (
-    <button
-      onClick={deleteReq}
-      className='bg-red-500 hover:bg-red-400 text-white font-bold px-4 rounded h-10'
-    > Delete
-    </button>
-  )
-}
 
 export default function Home() {
 
   // data
   const globalState = useUserStore()
   const [data, setData] = useState([])
-  const [tempData, setTempData] = useState([])
+  
+  const [editing, setEditing] = useState(false)
+
 
   // logistics state
-  const [editing, setEditing] = useState(false)
-  const [statusCode, setStatusCode] = useState('')
-  const [areEmailsValid, setAreEmailsValid] = useState(true)
 
+  const [statusCode, setStatusCode] = useState('')
+
+
+  const startEditing = () => {
+  
+    setEditing(true)
+  }
   // get initial data
+
+  const deleteButton = (props) => {
+    const deleteReq = async () => {
+      console.log(props.data.app_num)
+
+      
+      console.log(`https://csce-310-flask-backend-api.onrender.com/applications/${props.data.app_num}`)
+      const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/applications/${props.data.app_num}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
+        }
+      })
+  
+      const code = response.status
+      setStatusCode(code)
+
+      if (code === 200) {
+        const json = await response.json()
+        console.log(json)
+    }
+
+      
+  
+    }
+  
+    return (
+      <button
+        onClick={deleteReq}
+        className='bg-red-500 hover:bg-red-400 text-white font-bold px-4 rounded h-10'
+      > Delete
+      </button>
+    )
+  }
+
+
+  
+  
+
+  const addNewUser = () => {
+    setEditing(true)
+
+    setData([...data, {
+      'app_num': '',
+      'program_num': '',
+      'uncom_cert': '',
+      'com_cert': '',
+      "purpose_statement": '',
+    }])
+  }
   useEffect(() => {
     const fetchUsers = async () => {
-      console.log('sup1')
-      const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/users`, {
+   
+      const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/applications`, {
         method: 'GET',
         headers: {
           'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
         }
       })
-
       const code = response.status
       setStatusCode(code)
 
@@ -71,67 +100,68 @@ export default function Home() {
 
         setData(json)
       }
+    
+    
     }
-
     fetchUsers()
-      .catch(err => console.log(err, 'from the admin/users page'))
+      .catch(err => console.log(err, 'from the student/programs page'))
   }, [])
 
-  // validate if data is correct
-  const validateEmails = () => {
-    if (data && data.some(e => !EmailValidator.validate(e.email))) {
-      setAreEmailsValid(false)
-    }
-    else {
-      setAreEmailsValid(true)
-    }
+
+  const saveData = async () => {
+    console.log('in save')
+      for (let entry = 0; entry < data.length; ++entry){
+        try {
+          let method = 'POST'
+          const bodyJson = {
+            'program_num': data[entry].program_num,
+            'uncom_cert': data[entry].uncom_cert,
+            'com_cert': data[entry].com_cert,
+            'purpose_statement': data[entry].purpose_statement,
+            
+          }
+
+          //console.log("body json: ", bodyJson)
+        
+          if (data[entry].app_num != ''){
+            bodyJson['app_num'] = data[entry].app_num
+            method = 'PUT'
+          }
+
+          //console.log('method: ', method)
+
+          const res = await fetch(`https://csce-310-flask-backend-api.onrender.com/applications`, {
+            method: method,
+            headers: {
+              'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64'),
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(bodyJson)
+          })
+          //console.log('res', res)
+        } catch (e) {
+          console.error('errrrr', e)
+        }
+
+      }
   }
 
-  const startEditing = () => {
-    setTempData(data)
-    setEditing(true)
-  }
-
-  // helpers
-  const addNewUser = () => {
-    startEditing()
-
-    setData([...data, {
-      "uin": Math.max(...data.map(e => e.uin)) + 1,
-      "first_name": '',
-      'last_name': '',
-      'm_initial': '',
-      'password': '',
-      "discord_name": '',
-      "user_type": '',
-      "username": '',
-      "email": '',
-    }])
-  }
-
-  // TODO: save the data
-  const saveData = () => {
-    // TODO: create new users
-
-    // TODO: update admin status
-
-    // TODO: update user's details
-  }
-
-  // const cancelChanges = () => {
-  //   setEditing(false)
-  //   setData([...tempData])
-  // }
 
   return (
     <main className="h-screen flex flex-col px-5 py-3 gap-5">
+
       <h1 className="text-3xl">Manage Users</h1>
 
+
+      
       <div className="flex gap-3">
-        <button
+
+       
+
+      <button
           onClick={addNewUser}
           className='bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded w-42'
-        >Add new user (+)</button>
+        >Add new Application (+)</button>
 
         {
           (editing) ? '' :
@@ -140,95 +170,59 @@ export default function Home() {
               className='bg-purple-500 hover:bg-purple-400 text-white font-bold py-2 px-4 border-b-4 border-purple-700 hover:border-purple-500 rounded w-42'
             >Edit Table (+)</button>
         }
-
-        {
+                {
           (!editing) ? '' :
             <button
               onClick={saveData}
               className='bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-4 border-b-4 border-green-700 hover:border-green-500 rounded w-42'
             >Save Changes</button>
         }
+        
 
-        {/* <button TODO:
-          onClick={cancelChanges}
-          className='bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 border-b-4 border-red-700 hover:border-red-500 rounded w-42'
-        >Cancel Changes</button> */}
-
-        {!areEmailsValid ?
-          <span className="text-sm text-red-600">Ensure no emails are empty & all are valid</span> : ''
-        }
       </div>
-
       <div className="ag-theme-quartz h-screen">
-        {/* <AgGridReact
-          onCellKeyDown={validateEmails}
+         <AgGridReact
+
           rowData={data}
           columnDefs={[
             {
-              "field": "uin",
-              "headerName": "UIN"
+              "field": "app_num",
+              "headerName": "App Number",
+     
             },
             {
-              "field": "username",
-              "headerName": "Username"
+              "field": "program_num",
+              "headerName": "Program Number",
+              "editable": editing
             },
             {
-              "field": "email",
-              "headerName": "Email",
-              "editable": (params) => editing && !!!params.data.username,
-              "cellStyle": (params) => ({ "backgroundColor": (editing && !!!params.data.username) ? '#FFFFE0' : '' })
+              "field": "uncom_cert",
+              "headerName": "uncom cert",
+              "editable": editing
+              
             },
             {
-              "field": 'first_name',
-              "editable": editing,
-              "headerName": "First Name",
-              "cellStyle": { "backgroundColor": (editing) ? '#FFFFE0' : '' }
+              "field": "com_cert",
+              "headerName": "com cert",
+              "editable": editing
             },
             {
-              "field": 'last_name',
-              "editable": editing,
-              "headerName": "Last Name",
-              "cellStyle": { "backgroundColor": (editing) ? '#FFFFE0' : '' }
+              "field": "purpose_statement",
+              "headerName": "Purpose Statement",
+              "editable": editing
             },
+   
             {
-              "field": 'm_initial',
-              "editable": editing,
-              "headerName": "Middle Initial",
-              "cellStyle": { "backgroundColor": (editing) ? '#FFFFE0' : '' }
+              "headerName": "Delete Application",
+              "cellRenderer": deleteButton, 
             },
-            {
-              "field": 'password',
-              "editable": editing,
-              "headerName": "Password",
-              "cellStyle": { "backgroundColor": (editing) ? '#FFFFE0' : '' }
-            },
-            {
-              "field": "discord_name",
-              "editable": editing,
-              "headerName": "Discord Name",
-              "cellStyle": { "backgroundColor": (editing) ? '#FFFFE0' : '' }
-            },
-            {
-              "field": "user_type",
-              "editable": editing,
-              "headerName": "User Type",
-              "cellStyle": { "backgroundColor": (editing) ? '#FFFFE0' : '' },
-              "cellEditor": "agSelectCellEditor",
-              "cellEditorParams": {
-                "values": ["ADMIN", "USER"]
-              }
-            },
-            {
-              "headerName": "Deactivate",
-              // "cellRenderer": <button
-            },
-            {
-              "headerName": "Delete",
-              "cellRenderer": deleteButton
-            }
+   
           ]}
-        /> */}
+          
+        /> 
       </div>
+     
+      
     </main>
   )
 }
