@@ -1,2 +1,4 @@
 db_connections.txt
 frontend/
+.next/
+node_modules/
