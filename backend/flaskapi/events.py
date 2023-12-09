@@ -84,3 +84,10 @@ def remove_from_event(event_num, uin):
     user = User(uin=uin)
     response = user.remove_user_from_event(event_id=event_num)
     return { "response": response }
+
+@bp.route("/<int:event_id>/attendance", methods=["GET"])
+@authenticate
+@check_if_admin
+def get_attendance(event_id):
+    event = Event(event_id)
+    return event.get_attendance()

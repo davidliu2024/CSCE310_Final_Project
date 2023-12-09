@@ -2,6 +2,8 @@ from flask import g
 import psycopg
 from datetime import datetime
 
+from db_interface.users import User
+
 class Event:
     def __init__(self, event_id=None, uin=None, program_num=None, event_name=None, event_start_date=None,
                  event_start_time=None, event_end_date=None, event_end_time=None, event_location=None, event_type=None):
@@ -152,3 +154,30 @@ class Event:
             "event_type": self.event_type
         }
         return event_dict
+
+    def get_attendance(self):
+        assert isinstance(self.conn, psycopg.Connection)
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    SELECT * FROM event_tracking
+                    WHERE event_id = %s
+                    ''',
+                    (self.event_id, )
+                )
+                result = cur.fetchall()
+                assert isinstance(cur.description, list)
+
+                columns = [desc[0] for desc in cur.description]
+                json_result = [dict(zip(columns, row)) for row in result]
+
+                for r in json_result:
+                    c = User(uin = r.get('uin'))
+                    c.autoFill()
+                    r['user_details'] = c.getJSON()
+                return json_result
+            except Exception as e:
+                self.conn.rollback()
+                print(f"Error fetching event: {e}")
+                return []
