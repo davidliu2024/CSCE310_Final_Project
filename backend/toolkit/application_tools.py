@@ -100,11 +100,12 @@ def update_application(application_json):
     Update an existing application and return the application with application_json
     '''
     assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj, User)
 
     application_instance = Application(
         app_num=application_json['app_num'],
         program_num=application_json['program_num'],
-        uin=application_json['uin'],
+        uin=g.userobj.uin,
         uncom_cert=application_json.get('uncom_cert'),
         com_cert=application_json.get('com_cert'),
         purpose_statement=application_json.get('purpose_statement')

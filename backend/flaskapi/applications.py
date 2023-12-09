@@ -59,8 +59,7 @@ def submit_application() -> Response:
     if not good_request:
         abort(400)
 
-    application_response = create_application(g.userobj.uin, request.json)
-    return jsonify({"response": application_response})
+    return create_application(g.userobj.uin, request.json)
 
 @bp.route("/get-all", methods=["GET"])
 @authenticate
