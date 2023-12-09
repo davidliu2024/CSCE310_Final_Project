@@ -1,7 +1,9 @@
-from flask import Blueprint, request, g, abort
+from flask import Blueprint, request, g, abort, Response
 import psycopg
+from toolkit.cert_enrollments_tools import *
 from toolkit.user_tools import authenticate, check_if_admin
 from toolkit.certification_tools import *
+from db_interface.users import User
 
 bp = Blueprint("certifications", __name__, url_prefix="/certifications")
 
@@ -61,3 +63,62 @@ def update_certification(cert_id):
         abort(400)
     response = patch_certification(cert_id, request.json)
     return response
+
+## Enrollment hooks:
+
+@bp.route("/enrollments", methods=["POST"])
+@authenticate
+def create_enrollment():
+    assert isinstance(g.conn, psycopg.Connection)
+    if not isinstance(request.json, dict):
+        abort(400)
+    assert isinstance(request.json, dict)
+    good_request = all(field in request.json for field in ["cert_id", "cert_status",
+                                                           "training_status", "program_num", "semester", "cert_year"])
+    if not good_request:
+        abort(400)
+    response = create_cert_enrollment(request.json)
+    return Response(response, 202)
+
+@bp.route("/enrollments", methods=["GET"])
+@authenticate
+def get_enrollment():
+    assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj, User)
+    if (g.userobj.isAdmin()):
+        response = fetch_all_cert_enrollments()
+    else:
+        response = fetch_user_cert_enrollment()
+    return response
+
+@bp.route("/enrollments", methods=["PUT"])
+@authenticate
+def update_enrollment():
+    assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj, User)
+    if not isinstance(request.json, dict):
+        abort(400)
+    assert isinstance(request.json, dict)
+    good_request = all(field in request.json for field in ["cert_en_num", "cert_id", "cert_status",
+                                                           "training_status", "program_num", "semester", "cert_year"])
+    if not good_request:
+        abort(400)
+    enrollment = CertEnrollment(cert_en_num=request.json['cert_en_num'])
+    enrollment.auto_fill()
+    if enrollment.uin == g.userobj.uin or g.userobj.isAdmin():
+        response = patch_cert_enrollment(request.json)
+        return Response(response, 202)
+    else:
+        abort(401)
+
+@bp.route("/enrollments/<int:cert_en_num>", methods=["DELETE"])
+@authenticate
+def delete_enrollment(cert_en_num):
+    assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj, User)
+    cert_en = CertEnrollment(cert_en_num=cert_en_num)
+    cert_en.auto_fill()
+    if g.userobj.uin == cert_en.uin or g.userobj.isAdmin():
+        return Response(delete_cert_enrollment(cert_en_num), 202)
+    else:
+        abort(401, "Not admin or wrong user")

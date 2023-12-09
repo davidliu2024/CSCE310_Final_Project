@@ -3,13 +3,14 @@ import psycopg
 from db_interface.cert_enrollments import CertEnrollment
 from db_interface.users import User
 
-def create_cert_enrollment(cert_enrollment_json) -> CertEnrollment:
+def create_cert_enrollment(cert_enrollment_json):
     '''
     Create a new class and return the class with class_json
     '''
+    assert isinstance(g.userobj, User)
     cert_enrollment_instance = CertEnrollment(
-        certe_num=cert_enrollment_json.get('certe_num'),
-        uin=cert_enrollment_json.get('uin'),
+        cert_en_num=cert_enrollment_json.get('cert_en_num'),
+        uin=g.userobj.uin,
         cert_id=cert_enrollment_json.get('cert_id'),
         cert_status=cert_enrollment_json.get('cert_status'),
         training_status=cert_enrollment_json.get('training_status'),
@@ -19,48 +20,19 @@ def create_cert_enrollment(cert_enrollment_json) -> CertEnrollment:
 
     )
 
-    cert_enrollment_instance.create()
-    return cert_enrollment_instance
+    return cert_enrollment_instance.create()
 
 def fetch_all_cert_enrollments():
     '''
     Fetch all classes and return as JSON
     '''
     assert isinstance(g.conn, psycopg.Connection)
-
-    with g.conn.cursor() as cur:
-        try:
-            cur.execute(
-                '''
-                SELECT * FROM cert_enrollment
-                '''
-            )
-            cert_enrollment_records = cur.fetchall()
-
-            # Convert the result to a list of dictionaries
-            classes_list = [
-                {
-                    'certe_num': record[0],
-                    'uin': record[1],
-                    'cert_id': record[2],
-                    'cert_status': record[3],
-                    'training_status': record[4],
-                    'program_num': record[5],
-                    'semester': record[6],
-                    'cert_year': record[7]
-                }
-                for record in cert_enrollment_records
-            ]
-
-            return jsonify(classes_list)
-
-        except Exception as e:
-            g.conn.rollback()
-            return {"response": f"Error fetching all cert enrollments: {e}"}
+    enrollments = CertEnrollment().fetch_all()
+    return jsonify(enrollments)
 
 def fetch_user_cert_enrollment():
     assert isinstance(g.conn, psycopg.Connection)
-    assert isinstance(g.userobj.uin, User)
+    assert isinstance(g.userobj, User)
     enrollments = CertEnrollment(uin=g.userobj.uin).fetch()
     return jsonify(enrollments)
 
@@ -68,9 +40,10 @@ def patch_cert_enrollment(cert_enrollment_json):
     '''
     Update an existing class and return the class with class_json
     '''
+    assert isinstance(g.userobj, User)
     cert_enrollment_instance = CertEnrollment(
-        certe_num=cert_enrollment_json.get('certe_num'),
-        uin=cert_enrollment_json.get('uin'),
+        cert_en_num=cert_enrollment_json.get('cert_en_num'),
+        uin=g.userobj.uin,
         cert_id=cert_enrollment_json.get('cert_id'),
         cert_status=cert_enrollment_json.get('cert_status'),
         training_status=cert_enrollment_json.get('training_status'),
@@ -80,13 +53,10 @@ def patch_cert_enrollment(cert_enrollment_json):
 
     )
 
-    return {"response": cert_enrollment_instance.update()}
+    return cert_enrollment_instance.update()
 
-def delete_cert_enrollment( certEnrollmentJSON):
+def delete_cert_enrollment(cert_en_num):
     cert_enrollment = CertEnrollment(
-        certe_num = certEnrollmentJSON.get('cert_num')
+        cert_en_num = cert_en_num
     )
-
-    cert_enrollment.delete()
-
-    
+    return cert_enrollment.delete()
