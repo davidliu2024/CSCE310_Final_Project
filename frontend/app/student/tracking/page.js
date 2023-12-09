@@ -63,7 +63,7 @@ export default function Home() {
   const [enrolledPrograms, setEnrolledPrograms] = useState([]);
   const [enrolledClasses, setEnrolledClasses] = useState([]);
   const [internApps, setInternApps] = useState([]);
-  const [certs, setCerts] = userState([])
+  const [certs, setCerts] = useState([]);
 
   // get initial data including all programs
   useEffect(() => {
@@ -315,7 +315,7 @@ export default function Home() {
 
       if (enrolledClassesCode === 200) {
         const enrolledClassesJson = await enrolledClassesResponse.json();
-        setCerts(enrolledClassesJson);
+        setEnrolledClasses(enrolledClassesJson);
       }
     } catch (error) {
       console.error('Error fetching enrolled classes:', error);
@@ -329,6 +329,8 @@ export default function Home() {
 
       // Fetch enrolled classes
       await fetchEnrolledClasses();
+
+      await fetchInternApps();
     } catch (error) {
       console.error('Error fetching enrolled programs and classes:', error);
     }
@@ -468,6 +470,12 @@ export default function Home() {
           <ul>
             {enrolledClasses.map(classItem => (
               <li key={classItem.ce_num*classItem.class_id}>{classItem.class_details.class_name}</li>
+            ))}
+          </ul>
+          <h2 className="text-xl font-semibold mt-5">Internship Applications</h2>
+          <ul>
+            {internApps.map(classItem => (
+              <li key={classItem.app_num}>{classItem.internship_details.internship_name}</li>
             ))}
           </ul>
         </div>
