@@ -17,8 +17,11 @@ def create_new_event():
     if not good_request:
         abort(400)
     
-    new_event = create_event(request.json)
-    return new_event.getJSON()
+    response = create_event(request.json)
+    if response == "success":
+        return Response(response, 202)
+    else:
+        abort(400)
 
 @bp.route("", methods=["GET"])
 @authenticate
@@ -58,9 +61,9 @@ def update_event():
     assert isinstance(request.json, dict)
     good_request &= all(field in request.json for field in ['event_id', 'uin', 'program_num', 'event_name'])
     response = patch_event(request.json)
-    return {"response": response}
+    return Response(response, 202)
 
-@bp.route("<int:event_num>/add-user/<int:uin>", methods=["POST"])
+@bp.route("/<int:event_num>/add-user/<int:uin>", methods=["POST"])
 @authenticate
 @check_if_admin
 def add_to_event(event_num, uin):
@@ -71,7 +74,7 @@ def add_to_event(event_num, uin):
     response = user.add_user_to_event(event_id=event_num)
     return { "response": response }
 
-@bp.route("<int:event_num>/remove-user/<int:uin>", methods=["POST"])
+@bp.route("/<int:event_num>/remove-user/<int:uin>", methods=["POST"])
 @authenticate
 @check_if_admin
 def remove_from_event(event_num, uin):

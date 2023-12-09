@@ -3,7 +3,7 @@ import psycopg
 from datetime import datetime
 from db_interface.events import Event
 
-def create_event(eventJSON) -> Event:
+def create_event(eventJSON):
     '''
     Create a new event and return the event with eventJSON
     '''
@@ -19,8 +19,8 @@ def create_event(eventJSON) -> Event:
         event_type=eventJSON.get('event_type')
     )
 
-    event.create()
-    return event
+    response = event.create()
+    return response
 
 
 def fetch_all_events():
@@ -92,6 +92,7 @@ def patch_event(eventJSON):
     Create a new event and return the event with eventJSON
     '''
     event = Event(
+        event_id = eventJSON['event_id'],
         uin=eventJSON['uin'],
         program_num=eventJSON['program_num'],
         event_name=eventJSON['event_name'],

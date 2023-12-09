@@ -98,7 +98,7 @@ def update_user_application() -> Response:
     else:
         abort(400)
 
-@bp.route("<int:app_num>", methods=["DELETE"])
+@bp.route("/<int:app_num>", methods=["DELETE"])
 @authenticate
 def delete_user_application(app_num):
     assert isinstance(g.conn, psycopg.Connection)
