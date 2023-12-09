@@ -6,8 +6,6 @@ import * as EmailValidator from 'email-validator';
 
 import { AgGridReact } from 'ag-grid-react'; // React Grid Logic
 
-
-
 import "ag-grid-community/styles/ag-grid.css"; // Core CSS
 import "ag-grid-community/styles/ag-theme-quartz.css"; // Theme
 
@@ -18,7 +16,6 @@ export default function Home() {
   // data
   const globalState = useUserStore()
   const [allDocuments, setAllDocuments] = useState([])
-  const [allApplications, setApplications] = useState([])
   const [editing, setEditing] = useState(false)
   const [file, setfile] = useState()
 
@@ -31,12 +28,12 @@ export default function Home() {
 
   const deleteButton = (props) => {
     const deleteReq = async () => {
-      console.log(props.data)
+      console.log(`https://csce-310-flask-backend-api.onrender.com/applications/documents/${props.data.doc_num}`)
       const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/applications/documents/${props.data.doc_num}`, {
         method: 'DELETE',
         headers: {
           'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64'),
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         }
       })
   
@@ -46,7 +43,6 @@ export default function Home() {
       if (code === 200) {
         const json = await response.json()
         console.log(json)
-
       }
   
     }
@@ -70,29 +66,15 @@ export default function Home() {
       })
       const code = response.status
       setStatusCode(code)
-
+      console.log(code)
       if (code === 200) {
         const json = await response.json()
         console.log(json)
 
         setAllDocuments(json)
+        
       }
       
-      const application_list = await fetch(`https://csce-310-flask-backend-api.onrender.com/applications`, {
-        method: 'GET',
-        headers: {
-          'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
-        }
-      })
-      
-      const code2 = response.status
-      setStatusCode(code2)
-  
-      if (code2 === 200) {
-        const json = await application_list.json()
-        console.log(json)
-        setApplications(json)
-      }
       
     }
 
@@ -112,7 +94,7 @@ export default function Home() {
        
         console.log(fileData)
         
-        const res = await fetch(`https://csce-310-flask-backend-api.onrender.com/applications/documents/4`, {
+        const res = await fetch(`https://csce-310-flask-backend-api.onrender.com/applications/documents/43`, {
           method: 'POST',
           headers: {
             'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64'),
@@ -120,6 +102,10 @@ export default function Home() {
           body: fileData
         })
        
+        const code = res.status
+      
+        console.log(code)
+      
      
         if (!res.ok) throw new Error(await res.json())
       } catch (e) {
