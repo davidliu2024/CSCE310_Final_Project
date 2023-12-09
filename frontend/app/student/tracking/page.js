@@ -304,7 +304,7 @@ export default function Home() {
 
   const fetchCerts = async () => {
     try {
-      const enrolledClassesResponse = await fetch(`https://csce-310-flask-backend-api.onrender.com/classes/fetch-enrollments`, {
+      const enrolledClassesResponse = await fetch(`https://csce-310-flask-backend-api.onrender.com/certifications/enrollments`, {
         method: 'GET',
         headers: {
           'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
@@ -315,7 +315,7 @@ export default function Home() {
 
       if (enrolledClassesCode === 200) {
         const enrolledClassesJson = await enrolledClassesResponse.json();
-        setEnrolledClasses(enrolledClassesJson);
+        setCerts(enrolledClassesJson);
       }
     } catch (error) {
       console.error('Error fetching enrolled classes:', error);
@@ -331,6 +331,8 @@ export default function Home() {
       await fetchEnrolledClasses();
 
       await fetchInternApps();
+
+      await fetchCerts();
     } catch (error) {
       console.error('Error fetching enrolled programs and classes:', error);
     }
@@ -476,6 +478,12 @@ export default function Home() {
           <ul>
             {internApps.map(classItem => (
               <li key={classItem.app_num}>{classItem.internship_details.internship_name}</li>
+            ))}
+          </ul>
+          <h2 className="text-xl font-semibold mt-5">Certification Enrollments</h2>
+          <ul>
+            {certs.map(classItem => (
+              <li key={classItem.cert_en_num}>{classItem.cert_details.cert_name}</li>
             ))}
           </ul>
         </div>
