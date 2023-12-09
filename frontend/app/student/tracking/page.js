@@ -62,6 +62,8 @@ export default function Home() {
 
   const [enrolledPrograms, setEnrolledPrograms] = useState([]);
   const [enrolledClasses, setEnrolledClasses] = useState([]);
+  const [internApps, setInternApps] = useState([]);
+  const [certs, setCerts] = userState([])
 
   // get initial data including all programs
   useEffect(() => {
@@ -280,6 +282,46 @@ export default function Home() {
     }
   };
 
+  const fetchInternApps = async () => {
+    try {
+      const enrolledClassesResponse = await fetch(`https://csce-310-flask-backend-api.onrender.com/intern-apps`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
+        }
+      });
+
+      const enrolledClassesCode = enrolledClassesResponse.status;
+
+      if (enrolledClassesCode === 200) {
+        const enrolledClassesJson = await enrolledClassesResponse.json();
+        setInternApps(enrolledClassesJson);
+      }
+    } catch (error) {
+      console.error('Error fetching enrolled classes:', error);
+    }
+  };
+
+  const fetchCerts = async () => {
+    try {
+      const enrolledClassesResponse = await fetch(`https://csce-310-flask-backend-api.onrender.com/classes/fetch-enrollments`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
+        }
+      });
+
+      const enrolledClassesCode = enrolledClassesResponse.status;
+
+      if (enrolledClassesCode === 200) {
+        const enrolledClassesJson = await enrolledClassesResponse.json();
+        setCerts(enrolledClassesJson);
+      }
+    } catch (error) {
+      console.error('Error fetching enrolled classes:', error);
+    }
+  };
+
   const displayEnrolledProgramsHandler = async () => {
     try {
       // Fetch enrolled programs
@@ -425,7 +467,7 @@ export default function Home() {
           <h2 className="text-xl font-semibold mt-5">Enrolled Classes</h2>
           <ul>
             {enrolledClasses.map(classItem => (
-              <li key={classItem.class_id}>{classItem.class_name}</li>
+              <li key={classItem.ce_num*classItem.class_id}>{classItem.class_details.class_name}</li>
             ))}
           </ul>
         </div>
