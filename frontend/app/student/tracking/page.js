@@ -40,88 +40,260 @@ const deleteButton = (props) => {
 }
 
 export default function Home() {
-
   // data
-  const globalState = useUserStore()
-  const [data, setData] = useState([])
-  const [tempData, setTempData] = useState([])
+  const globalState = useUserStore();
+  const [data, setData] = useState([]);
+  const [tempData, setTempData] = useState([]);
+  const [allPrograms, setAllPrograms] = useState([]);
+  const [selectedProgram, setSelectedProgram] = useState('');
+  const [selectedProgramDetails, setSelectedProgramDetails] = useState(null);
+  const [signedUpPrograms, setSignedUpPrograms] = useState([]);
+  const [signUpResponse, setSignUpResponse] = useState('');
+  const [displaySignedUpPrograms, setDisplaySignedUpPrograms] = useState(false); // New state to control display
 
   // logistics state
-  const [editing, setEditing] = useState(false)
-  const [statusCode, setStatusCode] = useState('')
-  const [areEmailsValid, setAreEmailsValid] = useState(true)
+  const [editing, setEditing] = useState(false);
+  const [statusCode, setStatusCode] = useState('');
+  const [areEmailsValid, setAreEmailsValid] = useState(true);
 
-  // get initial data
+  const [allClasses, setAllClasses] = useState([]);
+  const [selectedClass, setSelectedClass] = useState('');
+  const [selectedClassDetails, setSelectedClassDetails] = useState(null);
+
+  const [enrolledPrograms, setEnrolledPrograms] = useState([]);
+  const [enrolledClasses, setEnrolledClasses] = useState([]);
+
+  // get initial data including all programs
   useEffect(() => {
-    const fetchUsers = async () => {
-      console.log('sup1')
-      const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/users`, {
+    const fetchPrograms = async () => {
+      const programsResponse = await fetch(`https://csce-310-flask-backend-api.onrender.com/programs`, {
         method: 'GET',
         headers: {
           'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
         }
-      })
+      });
 
-      const code = response.status
-      setStatusCode(code)
+      const code = programsResponse.status;
 
       if (code === 200) {
-        const json = await response.json()
-        console.log(json)
-
-        setData(json)
+        const json = await programsResponse.json();
+        setAllPrograms(json);
       }
+    };
+
+    const fetchClasses = async () => {
+      const classesResponse = await fetch(`https://csce-310-flask-backend-api.onrender.com/classes`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
+        }
+      });
+
+      const code = classesResponse.status;
+
+      if (code === 200) {
+        const json = await classesResponse.json();
+        setAllClasses(json);
+      }
+    };
+
+    fetchPrograms().catch(err => console.log(err, 'from the admin/users page'));
+    fetchClasses().catch(err => console.log(err, 'from the admin/users page'));
+  }, [globalState.username, globalState.password]);
+
+  const fetchSignedUpPrograms = async () => {
+    const signedUpProgramsResponse = await fetch(`https://csce-310-flask-backend-api.onrender.com/programs/user`, {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
+      }
+    });
+
+    const code = signedUpProgramsResponse.status;
+
+    if (code === 200) {
+      const json = await signedUpProgramsResponse.json();
+      setSignedUpPrograms(json);
+    }
+  };
+
+  const viewProgramDetails = async () => {
+    if (!selectedProgram) {
+      return;
     }
 
-    fetchUsers()
-      .catch(err => console.log(err, 'from the admin/users page'))
-  }, [])
+    const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/programs/${selectedProgram}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
+      }
+    });
 
-  // validate if data is correct
-  const validateEmails = () => {
-    if (data && data.some(e => !EmailValidator.validate(e.email))) {
-      setAreEmailsValid(false)
+    const code = response.status;
+    setStatusCode(code);
+
+    if (code === 200) {
+      const programDetails = await response.json();
+      setSelectedProgramDetails(programDetails);
     }
-    else {
-      setAreEmailsValid(true)
+  };
+
+  // Function to remove user from the selected program
+  const removeUserFromProgram = async () => {
+    if (!selectedProgram) {
+      return;
     }
-  }
 
-  const startEditing = () => {
-    setTempData(data)
-    setEditing(true)
-  }
+    const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/programs/${selectedProgram}/remove`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
+      }
+    });
 
-  // helpers
-  const addNewUser = () => {
-    startEditing()
+    const code = response.status;
+    setSignUpResponse(`Remove user response: ${code}`);
+    fetchSignedUpPrograms(); // Refresh the signed-up programs list
+  };
 
-    setData([...data, {
-      "uin": Math.max(...data.map(e => e.uin)) + 1,
-      "first_name": '',
-      'last_name': '',
-      'm_initial': '',
-      'password': '',
-      "discord_name": '',
-      "user_type": '',
-      "username": '',
-      "email": '',
-    }])
-  }
+  const signUpForProgram = async () => {
+    if (!selectedProgram) {
+      return;
+    }
 
-  // TODO: save the data
-  const saveData = () => {
-    // TODO: create new users
+    const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/programs/${selectedProgram}/sign-up`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
+      }
+    });
 
-    // TODO: update admin status
+    const code = response.status;
+    setSignUpResponse(`Sign-up response: ${code}`);
+    fetchSignedUpPrograms(); // Refresh the signed-up programs list
+  };
 
-    // TODO: update user's details
-  }
+  const addEnrollment = async () => {
+    if (!selectedClass) {
+      return;
+    }
 
-  // const cancelChanges = () => {
-  //   setEditing(false)
-  //   setData([...tempData])
-  // }
+    const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/classes/add-enrollment`, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64'),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        uin: 4,
+        class_id: selectedClass,
+        class_status: "Enrolled",
+        semester: "SPRING",
+        class_year: 2024
+      }),
+    });
+    console.log(globalState.username, globalState.password)
+
+    const code = response.status;
+    setSignUpResponse(`Add enrollment response: ${code}`);
+  };
+
+  const removeEnrollment = async () => {
+    if (!selectedClass) {
+      return;
+    }
+    
+    const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/classes/remove-enrollment`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64'),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        class_id: selectedClass,
+        uin: globalState.userUIN, 
+      }),
+    });
+
+    const code = response.status;
+    setSignUpResponse(`Remove enrollment response: ${code}`);
+  };
+
+  const viewClassDetails = async () => {
+    if (!selectedClass) {
+      return;
+    }
+
+    const response = await fetch(`https://csce-310-flask-backend-api.onrender.com/classes/${selectedClass}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
+      }
+    });
+
+    const code = response.status;
+    setStatusCode(code);
+
+    if (code === 200) {
+      const classDetails = await response.json();
+      setSelectedClassDetails(classDetails);
+    }
+  };
+
+  const fetchEnrolledPrograms = async () => {
+    try {
+      const enrolledProgramsResponse = await fetch(`https://csce-310-flask-backend-api.onrender.com/programs/user`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
+        }
+      });
+
+      const enrolledProgramsCode = enrolledProgramsResponse.status;
+
+      if (enrolledProgramsCode === 200) {
+        const enrolledProgramsJson = await enrolledProgramsResponse.json();
+        setEnrolledPrograms(enrolledProgramsJson);
+      }
+    } catch (error) {
+      console.error('Error fetching enrolled programs:', error);
+    }
+  };
+
+  const fetchEnrolledClasses = async () => {
+    try {
+      const enrolledClassesResponse = await fetch(`https://csce-310-flask-backend-api.onrender.com/classes/fetch-enrollments`, {
+        method: 'GET',
+        headers: {
+          'Authorization': 'Basic ' + Buffer.from(globalState.username + ":" + globalState.password).toString('base64')
+        }
+      });
+
+      const enrolledClassesCode = enrolledClassesResponse.status;
+
+      if (enrolledClassesCode === 200) {
+        const enrolledClassesJson = await enrolledClassesResponse.json();
+        setEnrolledClasses(enrolledClassesJson);
+      }
+    } catch (error) {
+      console.error('Error fetching enrolled classes:', error);
+    }
+  };
+
+  const displayEnrolledProgramsHandler = async () => {
+    try {
+      // Fetch enrolled programs
+      await fetchEnrolledPrograms();
+
+      // Fetch enrolled classes
+      await fetchEnrolledClasses();
+    } catch (error) {
+      console.error('Error fetching enrolled programs and classes:', error);
+    }
+
+    setDisplaySignedUpPrograms(!displaySignedUpPrograms);
+  };
+
 
   return (
     <main className="h-screen flex flex-col px-5 py-3 gap-5">
@@ -129,106 +301,135 @@ export default function Home() {
 
       <div className="flex gap-3">
         <button
-          onClick={addNewUser}
-          className='bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded w-42'
-        >Add new user (+)</button>
+          onClick={viewProgramDetails}
+          disabled={!selectedProgram}
+          className='bg-yellow-500 hover:bg-yellow-400 text-white font-bold py-2 px-4 border-b-4 border-yellow-700 hover:border-yellow-500 rounded w-42'
+        >
+          View Program Details
+        </button>
 
-        {
-          (editing) ? '' :
-            <button
-              onClick={startEditing}
-              className='bg-purple-500 hover:bg-purple-400 text-white font-bold py-2 px-4 border-b-4 border-purple-700 hover:border-purple-500 rounded w-42'
-            >Edit Table (+)</button>
-        }
+        <button
+          onClick={signUpForProgram}
+          disabled={!selectedProgram}
+          className='bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-4 border-b-4 border-green-700 hover:border-green-500 rounded w-42'
+        >
+          Sign Up For Program
+        </button>
 
-        {
-          (!editing) ? '' :
-            <button
-              onClick={saveData}
-              className='bg-green-500 hover:bg-green-400 text-white font-bold py-2 px-4 border-b-4 border-green-700 hover:border-green-500 rounded w-42'
-            >Save Changes</button>
-        }
-
-        {/* <button TODO:
-          onClick={cancelChanges}
+        {/* Remove User from Program button */}
+        <button
+          onClick={removeUserFromProgram}
+          disabled={!selectedProgram}
           className='bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 border-b-4 border-red-700 hover:border-red-500 rounded w-42'
-        >Cancel Changes</button> */}
+        >
+          Remove User from Program
+        </button>
 
         {!areEmailsValid ?
           <span className="text-sm text-red-600">Ensure no emails are empty & all are valid</span> : ''
         }
       </div>
 
-      <div className="ag-theme-quartz h-screen">
-        {/* <AgGridReact
-          onCellKeyDown={validateEmails}
-          rowData={data}
-          columnDefs={[
-            {
-              "field": "uin",
-              "headerName": "UIN"
-            },
-            {
-              "field": "username",
-              "headerName": "Username"
-            },
-            {
-              "field": "email",
-              "headerName": "Email",
-              "editable": (params) => editing && !!!params.data.username,
-              "cellStyle": (params) => ({ "backgroundColor": (editing && !!!params.data.username) ? '#FFFFE0' : '' })
-            },
-            {
-              "field": 'first_name',
-              "editable": editing,
-              "headerName": "First Name",
-              "cellStyle": { "backgroundColor": (editing) ? '#FFFFE0' : '' }
-            },
-            {
-              "field": 'last_name',
-              "editable": editing,
-              "headerName": "Last Name",
-              "cellStyle": { "backgroundColor": (editing) ? '#FFFFE0' : '' }
-            },
-            {
-              "field": 'm_initial',
-              "editable": editing,
-              "headerName": "Middle Initial",
-              "cellStyle": { "backgroundColor": (editing) ? '#FFFFE0' : '' }
-            },
-            {
-              "field": 'password',
-              "editable": editing,
-              "headerName": "Password",
-              "cellStyle": { "backgroundColor": (editing) ? '#FFFFE0' : '' }
-            },
-            {
-              "field": "discord_name",
-              "editable": editing,
-              "headerName": "Discord Name",
-              "cellStyle": { "backgroundColor": (editing) ? '#FFFFE0' : '' }
-            },
-            {
-              "field": "user_type",
-              "editable": editing,
-              "headerName": "User Type",
-              "cellStyle": { "backgroundColor": (editing) ? '#FFFFE0' : '' },
-              "cellEditor": "agSelectCellEditor",
-              "cellEditorParams": {
-                "values": ["ADMIN", "USER"]
-              }
-            },
-            {
-              "headerName": "Deactivate",
-              // "cellRenderer": <button
-            },
-            {
-              "headerName": "Delete",
-              "cellRenderer": deleteButton
-            }
-          ]}
-        /> */}
+      <div>
+        <label htmlFor="allProgramsDropdown" className="text-sm">Select Program:</label>
+        <select
+          id="allProgramsDropdown"
+          value={selectedProgram}
+          onChange={(e) => setSelectedProgram(e.target.value)}
+          className="bg-white border border-gray-300 p-2 rounded-md"
+        >
+          <option value="" disabled>Select a Program</option>
+          {allPrograms.map(program => (
+            <option key={program.program_num} value={program.program_num}>
+              {program.program_name}
+            </option>
+          ))}
+        </select>
       </div>
+
+      <div className="flex gap-3">
+       <button
+          onClick={viewClassDetails}
+          disabled={!selectedClass}
+          className='bg-yellow-500 hover:bg-yellow-400 text-white font-bold py-2 px-4 border-b-4 border-yellow-700 hover:border-yellow-500 rounded w-42'
+        >
+          View Class Details
+        </button>
+
+        <button
+          onClick={addEnrollment}
+          disabled={!selectedClass}
+          className='bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded w-42'
+        >
+          Add Enrollment
+        </button>
+
+        <button
+          onClick={removeEnrollment}
+          disabled={!selectedClass}
+          className='bg-red-500 hover:bg-red-400 text-white font-bold py-2 px-4 border-b-4 border-red-700 hover:border-red-500 rounded w-42'
+        >
+          Remove Enrollment
+        </button>
+
+      </div>
+
+      <div>
+        <label htmlFor="allClassesDropdown" className="text-sm">Select Class:</label>
+        <select
+          id="allClassesDropdown"
+          value={selectedClass}
+          onChange={(e) => setSelectedClass(e.target.value)}
+          className="bg-white border border-gray-300 p-2 rounded-md"
+        >
+          <option value="" disabled>Select a Class</option>
+          {allClasses.map(classItem => (
+            <option key={classItem.class_id} value={classItem.class_id}>
+              {classItem.class_name}
+            </option>
+          ))}
+        </select>
+      </div>
+      
+
+      {selectedProgramDetails && (
+        <div className="mt-5">
+          <h2 className="text-xl font-semibold">Program Details</h2>
+          <pre>{JSON.stringify(selectedProgramDetails, null, 2)}</pre>
+        </div>
+      )}
+
+      {selectedClassDetails && (
+        <div className="mt-5">
+          <h2 className="text-xl font-semibold">Class Details</h2>
+          <pre>{JSON.stringify(selectedClassDetails, null, 2)}</pre>
+        </div>
+      )}
+
+      <button
+        onClick={displayEnrolledProgramsHandler}
+        className='bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded mt-5 w-42'
+      >
+        Display Enrolled Programs and Classes
+      </button>
+
+      {displaySignedUpPrograms && (
+        <div className="mt-5">
+          <h2 className="text-xl font-semibold">Enrolled Programs</h2>
+          <ul>
+            {enrolledPrograms.map(program => (
+              <li key={program.program_num}>{program.program_name}</li>
+            ))}
+          </ul>
+
+          <h2 className="text-xl font-semibold mt-5">Enrolled Classes</h2>
+          <ul>
+            {enrolledClasses.map(classItem => (
+              <li key={classItem.class_id}>{classItem.class_name}</li>
+            ))}
+          </ul>
+        </div>
+      )}
     </main>
-  )
+  );
 }
