@@ -12,8 +12,9 @@ def fetch_enrollments()->Response:
     
 
 def create_enrollment(enrollmentJSON) -> Response:
+    assert isinstance(g.userobj, User)
     enrollment = ClassEnrollment(
-        uin=enrollmentJSON.get('uin'),
+        uin=g.userobj.uin,
         class_id=enrollmentJSON.get('class_id'),
         class_status=enrollmentJSON.get('class_status'),
         semester=enrollmentJSON.get('semester'),

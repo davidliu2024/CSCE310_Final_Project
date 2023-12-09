@@ -1,4 +1,4 @@
-from flask import g
+from flask import g, abort
 import psycopg
 from db_interface.programs import Program
 
@@ -28,6 +28,11 @@ class User:
         self.user_type = None
         self.email = None
         self.discord_name = None 
+    
+    def _check_status(self):
+        if self.autoFill():
+            if self.user_type == "DEACTIVATED":
+                abort(403, "User deactivated")
     
     def setConnectionManually(self, conn):
         self.conn = conn
@@ -59,6 +64,7 @@ class User:
                 return f"Error creating user: {e}"
     
     def fetch(self) -> list:
+        self._check_status()
         assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
@@ -81,6 +87,7 @@ class User:
         return True if self.user_type == 'ADMIN' else False
     
     def makeAdmin(self):
+        self._check_status()
         assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
@@ -100,6 +107,7 @@ class User:
                 return f"Error making user admin: {e}"
 
     def removeAdmin(self):
+        self._check_status()
         assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
@@ -119,6 +127,7 @@ class User:
                 return f"Error removing user admin status: {e}"
     
     def deactivate_user(self):
+        self._check_status()
         assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
@@ -158,6 +167,7 @@ class User:
 
 
     def autoFill(self):
+        self._check_status()
         assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
@@ -178,12 +188,14 @@ class User:
                     return True
                 else:
                     print(f"User with UIN {self.uin} not found.")
-                    return "success"
+                    return False
             except Exception as e:
                 self.conn.rollback()
-                return f"Error auto-filling user: {e}"
+                print(f"Error auto-filling user: {e}")
+                return False
 
     def update(self):
+        self._check_status()
         assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
@@ -203,6 +215,7 @@ class User:
                 return f"Error updating user: {e}"
 
     def delete(self):
+        self._check_status()
         assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
@@ -220,6 +233,7 @@ class User:
                 return f"Error deleting user: {e}"
     
     def get_user_programs(self):
+        self._check_status()
         assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
@@ -240,6 +254,7 @@ class User:
                 return f"Error getting user programs: {e}"
 
     def add_user_to_program(self, program_num):
+        self._check_status()
         assert isinstance(self.conn, psycopg.Connection)
         programTest = Program(program_num = program_num)
         programTest.auto_fill()
@@ -264,6 +279,7 @@ class User:
                 return f"Error adding user to program: {e}"
     
     def remove_user_from_program(self, program_num):
+        self._check_status()
         assert isinstance(self.conn, psycopg.Connection)
 
         with self.conn.cursor() as cur:
@@ -282,6 +298,7 @@ class User:
                 return f"Error removing user from program: {e}"
             
     def add_user_to_event(self, event_id):
+        self._check_status()
         assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
@@ -299,6 +316,7 @@ class User:
                 return f"Error adding user to event: {e}"
 
     def remove_user_from_event(self, event_id):
+        self._check_status()
         assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:

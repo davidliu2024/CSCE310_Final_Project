@@ -1,4 +1,4 @@
-from flask import Blueprint, request, g, abort, Response, jsonify
+from flask import request, g, abort, jsonify
 import psycopg
 import os
 from db_interface.users import User
@@ -60,7 +60,6 @@ def fetch_all_users():
     Fetch all users and return as JSON
     '''
     assert isinstance(g.conn, psycopg.Connection)
-    print(os.getcwd())
 
     with g.conn.cursor() as cur:
         try:

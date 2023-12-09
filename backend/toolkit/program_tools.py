@@ -1,8 +1,10 @@
+from posixpath import isabs
 from flask import g, jsonify
 import psycopg
 from db_interface.programs import Program
+from db_interface.users import User
 
-def create_program(programJSON) -> Program:
+def create_program(programJSON):
     '''
     Create a new program and return the program with programJSON
     '''
@@ -12,40 +14,21 @@ def create_program(programJSON) -> Program:
         program_status=programJSON.get('program_status')
     )
 
-    program.create()
-    return program
+    return program.create()
 
 def fetch_all_programs():
     '''
     Fetch all programs and return as JSON
     '''
     assert isinstance(g.conn, psycopg.Connection)
+    assert isinstance(g.userobj, User)
+    programs = Program().fetch_all()
+    if g.userobj.isAdmin():
+        return programs
+    else:
+        active_only = [program for program in programs if program.get("program_status") == "ACTIVE"]
+        return active_only
 
-    with g.conn.cursor() as cur:
-        try:
-            cur.execute(
-                '''
-                SELECT * FROM programs
-                '''
-            )
-            program_records = cur.fetchall()
-
-            # Convert the result to a list of dictionaries
-            programs_list = [
-                {
-                    'program_num': record[0],
-                    'program_name': record[1],
-                    'program_description': record[2],
-                    'program_status': record[3]
-                }
-                for record in program_records
-            ]
-
-            return jsonify(programs_list)
-
-        except Exception as e:
-            g.conn.rollback()
-            return {"response": f"Error fetching all programs: {e}"}
         
 def fetch_user_programs():
     '''
@@ -94,4 +77,4 @@ def patch_program(program_num, programJSON):
         program_status=programJSON.get('program_status')
     )
 
-    return {"response": program.update()}
+    return program.update()

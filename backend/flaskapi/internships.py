@@ -1,4 +1,4 @@
-from flask import Blueprint, request
+from flask import Blueprint, request, Response
 from toolkit.user_tools import *
 from toolkit.internship_tools import *
 

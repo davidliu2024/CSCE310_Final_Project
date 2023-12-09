@@ -78,12 +78,7 @@ def add_user_to_class() -> Response:
     if request.json is None:
         abort(400)
     assert isinstance(request.json, dict)
-    is_owner = request.json.get("uin") == g.userobj.uin
-    if is_owner:
-        return create_enrollment(request.json)
-    else:
-        abort(401, "Cannot enroll for this person")
-
+    return create_enrollment(request.json)
 @bp.route("/remove-enrollment", methods=["DELETE"])
 @authenticate
 def remove_user_from_class() -> Response:

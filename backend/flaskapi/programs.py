@@ -17,8 +17,11 @@ def create_new_program():
     if not good_request:
         abort(400)
     
-    new_program = create_program(request.json)
-    return new_program.get_json()
+    response = create_program(request.json)
+    if response == "success":
+        return Response(response, 202)
+    else:
+        abort(400)
 
 #gets all programs available
 @bp.route("", methods=["GET"])
@@ -57,7 +60,10 @@ def delete_program_by_num(program_num):
         abort(400)
     current_program = Program(program_num=program_num)
     response = current_program.delete()
-    return response
+    if response == "success":
+        return Response(response, 202)
+    else:
+        abort(400)
 
 #updates whole program (description, name, status, etc.)
 @bp.route("/<int:program_num>", methods=["PUT"])
@@ -72,7 +78,10 @@ def update_program(program_num):
     if not good_request:
         abort(400)
     response = patch_program(program_num, request.json)
-    return response
+    if response == "success":
+        return Response(response, 202)
+    else:
+        abort(400)
 
 #activates program and makes it available to students
 @bp.route("/<int:program_num>/activate", methods=["PUT"])
@@ -81,7 +90,11 @@ def update_program(program_num):
 def activate_program(program_num):
     assert isinstance(g.conn, psycopg.Connection)
     program = Program(program_num=program_num)
-    return {"response" : program.activate_program()}
+    response = program.activate_program()
+    if response == "success":
+        return Response(response, 202)
+    else:
+        abort(400)
 
 #deactivates program so students can't sign up
 @bp.route("/<int:program_num>/deactivate", methods=["PUT"])
@@ -90,7 +103,11 @@ def activate_program(program_num):
 def deactivate_program(program_num):
     assert isinstance(g.conn, psycopg.Connection)
     program = Program(program_num=program_num)
-    return {"response" : program.deactivate_program()}
+    response = program.deactivate_program()
+    if response == "success":
+        return Response(response, 202)
+    else:
+        abort(400)
 
 #student can sign up for programs
 @bp.route("/<int:program_num>/sign-up", methods=["PUT"])
@@ -101,7 +118,10 @@ def sign_up_program(program_num):
     if not isinstance(program_num, int):
         abort(400)
     response = g.userobj.add_user_to_program(program_num = program_num)
-    return { "response": response }
+    if response == "success":
+        return Response(response, 202)
+    else:
+        abort(400)
 
 #removes user from program
 @bp.route("/<int:program_num>/remove", methods=["PUT"])
@@ -112,4 +132,7 @@ def remove_program(program_num):
     if not isinstance(program_num, int):
         abort(400)
     response = g.userobj.remove_user_from_program(program_num=program_num)
-    return { "response": response }
+    if response == "success":
+        return Response(response, 202)
+    else:
+        abort(400)

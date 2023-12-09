@@ -1,4 +1,4 @@
-from flask import g
+from flask import g, abort
 import psycopg
 
 class Program:
@@ -19,6 +19,13 @@ class Program:
     def close_connection_manually(self):
         assert isinstance(self.conn, psycopg.Connection)
         self.conn.close()
+
+    def _check_status(self):
+        print("hitting")
+        if self.auto_fill():
+            active = self.program_status == "ACTIVE"
+            if not active:
+                abort(403, "Program is deactivated")
 
     def __repr__(self):
         return f"Program(program_num={self.program_num}, program_name='{self.program_name}', " \
@@ -44,6 +51,7 @@ class Program:
                 return f"Error creating program: {e}"
 
     def fetch(self):
+        self._check_status()
         assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
@@ -54,11 +62,40 @@ class Program:
                     ''',
                     (self.program_num, self.program_name, self.program_status)
                 )
-                return cur.fetchall()
+                result = cur.fetchall()
+                assert isinstance(cur.description, list)
+
+                columns = [desc[0] for desc in cur.description]
+                json_result = [dict(zip(columns, row)) for row in result]
+                return json_result
+
             except Exception as e:
                 self.conn.rollback()
                 print(f"Error fetching program: {e}")
                 return []
+    
+    def fetch_all(self):
+        self._check_status()
+        assert isinstance(self.conn, psycopg.Connection)
+        with self.conn.cursor() as cur:
+            try:
+                cur.execute(
+                    '''
+                    SELECT * FROM programs
+                    '''
+                )
+                result = cur.fetchall()
+                assert isinstance(cur.description, list)
+
+                columns = [desc[0] for desc in cur.description]
+                json_result = [dict(zip(columns, row)) for row in result]
+                return json_result
+
+            except Exception as e:
+                self.conn.rollback()
+                print(f"Error fetching program: {e}")
+                return []
+
 
     def auto_fill(self):
         assert isinstance(self.conn, psycopg.Connection)
@@ -86,6 +123,7 @@ class Program:
                 return f"Error auto-filling program: {e}"
 
     def update(self):
+        self._check_status()
         assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
@@ -105,6 +143,7 @@ class Program:
                 return f"Error updating program: {e}"
 
     def delete(self):
+        self._check_status()
         assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
@@ -140,6 +179,7 @@ class Program:
                 return f"Error activating program: {e}"
 
     def deactivate_program(self):
+        self._check_status
         assert isinstance(self.conn, psycopg.Connection)
         with self.conn.cursor() as cur:
             try:
