@@ -31,7 +31,7 @@ export default function Home() {
 
     if (code === 200) {
       const json = await response.json()
-      console.log(json?.user_type)
+      console.log("hmon 2:", json)
 
       globalState.setDetails(json)
 
